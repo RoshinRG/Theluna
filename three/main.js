@@ -81,6 +81,8 @@ class CosmicApp {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  new CosmicApp();
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    new CosmicApp();
+  }, 10);
 });
