@@ -47,38 +47,35 @@ class CosmicApp {
   }
 
   async initModulesAsync() {
-    const delay = () => new Promise(res => setTimeout(res, 50));
+    const delay = () => new Promise(res => setTimeout(res, 30));
 
     this.starfield = new Starfield(this.scene);
+    this.renderer.render(this.scene, this.camera);
     await delay();
 
     this.heroMoon = new HeroMoon(this.scene);
+    this.renderer.render(this.scene, this.camera);
     await delay();
 
     this.nebula = new Nebula(this.scene);
+    this.renderer.render(this.scene, this.camera);
     await delay();
 
     this.sparkles = new Sparkles(this.scene);
+    this.renderer.render(this.scene, this.camera);
     await delay();
 
     this.shootingStar = new ShootingStar(this.scene);
+    this.renderer.render(this.scene, this.camera);
     await delay();
 
     this.cursorTrail = new CursorTrail(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
     await delay();
 
     this.bookCards = new BookCards(this.scene);
+    this.renderer.render(this.scene, this.camera);
     await delay();
-
-    if (this.renderer.compileAsync) {
-      try {
-        await this.renderer.compileAsync(this.scene, this.camera);
-      } catch (e) {
-        console.warn("compileAsync not supported or failed", e);
-      }
-    } else {
-      this.renderer.compile(this.scene, this.camera);
-    }
 
     this.clock = new THREE.Clock();
     this.animate();
