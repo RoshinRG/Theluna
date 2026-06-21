@@ -43,14 +43,11 @@ class CosmicApp {
 
     window.addEventListener('resize', this.onWindowResize.bind(this));
 
-    this.clock = new THREE.Clock();
-    this.animate();
-
     this.initModulesAsync();
   }
 
   async initModulesAsync() {
-    const delay = () => new Promise(res => setTimeout(res, 30));
+    const delay = () => new Promise(res => setTimeout(res, 50));
 
     this.starfield = new Starfield(this.scene);
     await delay();
@@ -71,6 +68,20 @@ class CosmicApp {
     await delay();
 
     this.bookCards = new BookCards(this.scene);
+    await delay();
+
+    if (this.renderer.compileAsync) {
+      try {
+        await this.renderer.compileAsync(this.scene, this.camera);
+      } catch (e) {
+        console.warn("compileAsync not supported or failed", e);
+      }
+    } else {
+      this.renderer.compile(this.scene, this.camera);
+    }
+
+    this.clock = new THREE.Clock();
+    this.animate();
   }
 
   onWindowResize() {
@@ -100,6 +111,10 @@ class CosmicApp {
 
 window.addEventListener('load', () => {
   setTimeout(() => {
-    new CosmicApp();
-  }, 10);
+    if (window.requestIdleCallback) {
+      window.requestIdleCallback(() => new CosmicApp(), { timeout: 2000 });
+    } else {
+      new CosmicApp();
+    }
+  }, 100);
 });
