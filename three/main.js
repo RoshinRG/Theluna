@@ -33,20 +33,11 @@ class CosmicApp {
 
     this.modules = [];
 
-    this.starfield = new Starfield(this.scene);
-    this.heroMoon = new HeroMoon(this.scene);
-    this.nebula = new Nebula(this.scene);
-    this.sparkles = new Sparkles(this.scene);
-    this.shootingStar = new ShootingStar(this.scene);
-    this.cursorTrail = new CursorTrail(this.scene, this.camera);
-    this.bookCards = new BookCards(this.scene);
-
     this.scrollY = window.scrollY;
     this.targetCameraY = 0;
     
     window.addEventListener('scroll', () => {
       this.scrollY = window.scrollY;
-
       this.targetCameraY = -this.scrollY * 0.05; 
     });
 
@@ -54,6 +45,32 @@ class CosmicApp {
 
     this.clock = new THREE.Clock();
     this.animate();
+
+    this.initModulesAsync();
+  }
+
+  async initModulesAsync() {
+    const delay = () => new Promise(res => setTimeout(res, 30));
+
+    this.starfield = new Starfield(this.scene);
+    await delay();
+
+    this.heroMoon = new HeroMoon(this.scene);
+    await delay();
+
+    this.nebula = new Nebula(this.scene);
+    await delay();
+
+    this.sparkles = new Sparkles(this.scene);
+    await delay();
+
+    this.shootingStar = new ShootingStar(this.scene);
+    await delay();
+
+    this.cursorTrail = new CursorTrail(this.scene, this.camera);
+    await delay();
+
+    this.bookCards = new BookCards(this.scene);
   }
 
   onWindowResize() {

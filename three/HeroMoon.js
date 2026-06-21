@@ -8,7 +8,7 @@ export class HeroMoon {
     const geometry = new THREE.SphereGeometry(1, 64, 64);
 
     const textureLoader = new THREE.TextureLoader();
-    const moonTexture = textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg');
+    const moonTexture = textureLoader.load('assets/moon_1024.jpg');
 
     this.material = new THREE.ShaderMaterial({
       uniforms: {
