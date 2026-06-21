@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna's World - A Magical Author Universe</title>
+  <meta name="description"
+    content="Stories, poetry, dreams, and worlds beyond imagination by G Daffini Shiyalin (Luna).">
+
+  <meta property="og:title" content="Luna's World - A Magical Author Universe">
+  <meta property="og:description"
+    content="Stories, poetry, dreams, and worlds beyond imagination by G Daffini Shiyalin (Luna).">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Luna's World - A Magical Author Universe">
+  <meta name="twitter:description"
+    content="Stories, poetry, dreams, and worlds beyond imagination by G Daffini Shiyalin (Luna).">
+  <meta name="twitter:image" content="/assets/og-image.jpg">
+
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+
+  <script>
+    document.documentElement.classList.add('js-enabled');
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+
+<body>
+
+  <div class="loading-screen" id="loading-screen">
+    <div class="loading-content">
+      <div class="loading-moon">🌙</div>
+      <h2 class="loading-title">Luna's World</h2>
+      <div class="loading-bar-container">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+      <p class="loading-subtitle">Summoning the cosmos...</p>
+    </div>
+  </div>
+
+  <canvas id="webgl-canvas"></canvas>
+
+  <div class="cursor-dot" id="cursor-dot"></div>
+  <div class="cursor-glow" id="cursor-glow"></div>
+
+  <div class="star-field"></div>
+
+  <div class="drifting-stars">
+    <div class="star-particle star-1"></div>
+    <div class="star-particle star-2"></div>
+    <div class="star-particle star-3"></div>
+  </div>
+
+  <nav class="spotlight-nav" id="spotlight-nav">
+    <div class="nav-spotlight" id="nav-spotlight"></div>
+    <div class="nav-ambience" id="nav-ambience"></div>
+    <ul class="nav-links">
+      <li><a href="#home" class="nav-link active" data-target="home">Home</a></li>
+      <li><a href="#books" class="nav-link" data-target="books">Books</a></li>
+      <li><a href="#poetry" class="nav-link" data-target="poetry">Poetry</a></li>
+      <li><a href="#projects" class="nav-link" data-target="projects">Projects</a></li>
+      <li><a href="#contact" class="nav-link" data-target="contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <section id="home" class="hero-section fade-in-up spa-section">
+      <div class="hero-content">
+        <span class="eyebrow">A magical author universe</span>
+        <h1>Welcome to Luna's World</h1>
+        <p class="subhead">Stories, poetry, dreams, and worlds beyond imagination.</p>
+        <p class="body-text">I am G Daffini Shiyalin — aka Luna — a cosmic poet and storyteller who spins thoughts into
+          twisted verse, moonlit prose, and surreal worlds that shimmer between dream and reality.</p>
+        <a href="#books" class="btn-primary">Explore My World</a>
+        <div class="hero-upcoming">
+          <span class="eyebrow hero-upcoming-title">Coming Soon</span>
+          <div class="hero-upcoming-grid">
+            <div class="glass-card hero-upcoming-card">
+              <div class="card-image hero-upcoming-image"><img src="assets/EIGHTEEN.png" alt="EIGHTEEN Cover" loading="lazy"></div>
+              <span class="hero-upcoming-label">Upcoming Poem</span>
+              <h4 class="hero-upcoming-heading">EIGHTEEN</h4>
+            </div>
+            <div class="glass-card hero-upcoming-card">
+              <span class="hero-upcoming-label">Upcoming Book</span>
+              <h4 class="hero-upcoming-heading">In Progress...</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-illustration">
+        <div class="moon"></div>
+        <div class="constellation-dot dot-1"></div>
+        <div class="constellation-dot dot-2"></div>
+        <div class="constellation-dot dot-3"></div>
+      </div>
+    </section>
+
+    <section id="books" class="content-section fade-in-up spa-section">
+      <div class="section-header">
+        <span class="eyebrow">Books</span>
+        <h2>My Books</h2>
+        <p class="intro">Discover the stories that live beneath Luna's moonlit library.</p>
+      </div>
+      <div class="cards-grid">
+        <div class="glass-card">
+          <div class="card-image"><img src="assets/The%20Hidden%20Bloodline.png" alt="The Hidden Bloodline Cover" loading="lazy"></div>
+          <div class="card-content">
+            <h3>The Hidden Bloodline</h3>
+            <p class="meta"><strong>Genre:</strong> Fantasy | <strong>Status:</strong> Ongoing |
+              <strong>Platform:</strong> Wattpad
+            </p>
+            <p class="description">A Wattpad fantasy adventure where hidden bloodlines and moonlit secrets collide.</p>
+          </div>
+          <div class="card-action">
+            <a href="https://www.wattpad.com/story/411413955-the-hidden-bloodline" target="_blank"
+              rel="noopener noreferrer" class="btn-secondary">Read Now</a>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="card-content">
+            <h3>Upcoming Book</h3>
+            <p class="meta"><strong>Status:</strong> Coming Soon</p>
+            <p class="description">A new magical journey is currently being written.</p>
+          </div>
+          <div class="card-action">
+            <a href="#" class="btn-secondary coming-soon-link">In Progress</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="poetry" class="content-section fade-in-up spa-section">
+      <div class="section-header">
+        <span class="eyebrow">Poetry</span>
+        <h2>Poetry Collection</h2>
+        <p class="intro">Enter a constellation of verses created for dreamers and wanderers.</p>
+      </div>
+      <div class="cards-grid">
+        <div class="glass-card">
+          <div class="card-image"><img src="assets/Whispers_of_Earth.png" alt="Whispers of Earth Cover" loading="lazy"></div>
+          <div class="card-content">
+            <h3>Whispers of Earth</h3>
+            <p class="meta"><strong>Genre:</strong> Dream Poetry</p>
+            <p class="description">A collection of nocturnal poetry bathed in moonlight.</p>
+          </div>
+          <div class="card-action">
+            <a href="https://www.bribooks.com/bookstore/whispers-of-earth-by-luna" target="_blank"
+              rel="noopener noreferrer" class="btn-secondary">Read Now</a>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="card-image"><img src="assets/She_Became_In_Silence.png" alt="She Became In Silence Cover" loading="lazy"></div>
+          <div class="card-content">
+            <h3>She Became In Silence</h3>
+            <p class="meta"><strong>Genre:</strong> Cosmic Poetry</p>
+            <p class="description">A journey through lettered galaxies with soft and luminous lines.</p>
+          </div>
+          <div class="card-action">
+            <a href="https://www.bribooks.com/bookstore/she-became-in-silence-by-luna" target="_blank"
+              rel="noopener noreferrer" class="btn-secondary">Read Now</a>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="card-image"><img src="assets/Warmth_That_Burned.png" alt="Warmth That Burned Cover" loading="lazy"></div>
+          <div class="card-content">
+            <h3>Warmth That Burned</h3>
+            <p class="meta"><strong>Genre:</strong> Emotional Poetry</p>
+            <p class="description">A tender poetry collection that explores passion, memory, and the quiet fire within.
+            </p>
+          </div>
+          <div class="card-action">
+            <a href="https://www.bribooks.com/bookstore/warmth-that-burned-by-luna/" target="_blank"
+              rel="noopener noreferrer" class="btn-secondary">Read Now</a>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="card-image"><img src="assets/EIGHTEEN.png" alt="EIGHTEEN Cover" loading="lazy"></div>
+          <div class="card-content">
+            <h3>EIGHTEEN</h3>
+            <p class="meta"><strong>Genre:</strong> Upcoming Poem</p>
+            <p class="description">A new verse waiting to be unveiled in the cosmic library.</p>
+          </div>
+          <div class="card-action">
+            <a href="#" class="btn-secondary coming-soon-link">Coming Soon</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" class="content-section fade-in-up spa-section">
+      <div class="section-header">
+        <span class="eyebrow">Projects</span>
+        <h2>Projects and Creations</h2>
+        <p class="intro">Explore creative works, writing experiments, and magical collaborations.</p>
+      </div>
+      <div class="cards-grid">
+        <div class="glass-card">
+          <div class="card-image"><img src="assets/Library%20of%20stars.png" alt="Library of Stars Cover" loading="lazy"></div>
+          <div class="card-content">
+            <h3>Library of Stars</h3>
+            <p class="description">A creative writing gallery inspired by celestial myths.</p>
+          </div>
+          <div class="card-action">
+            <a href="#" class="btn-secondary coming-soon-link">Visit Library</a>
+          </div>
+        </div>
+        <div class="glass-card">
+          <div class="card-image"><img src="assets/Moonlit%20Journals.png" alt="Moonlit Journals Cover" loading="lazy"></div>
+          <div class="card-content">
+            <h3>Moonlit Journals</h3>
+            <p class="description">Personal writing prompts, sketches, and story seeds for creators.</p>
+          </div>
+          <div class="card-action">
+            <a href="#" class="btn-secondary coming-soon-link">View Journals</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="content-section fade-in-up spa-section">
+      <div class="section-header">
+        <span class="eyebrow">Contact</span>
+        <h2>Contact Me</h2>
+        <p class="intro">Reach out for collaborations, writing inquiries, or a moonlit hello.</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info glass-card">
+          <h3>Let's Connect</h3>
+          <p><strong>Email:</strong> <a href="mailto:daffini1908@gmail.com" class="text-link">daffini1908@gmail.com</a>
+          </p>
+          <div class="social-flip-container" id="social-flip-container">
+
+            <div class="social-border-lines">
+              <div class="border-top"></div>
+              <div class="border-bottom"></div>
+            </div>
+
+            <a href="mailto:daffini1908@gmail.com" class="social-flip-node" style="--delay: 0s;">
+              <div class="social-tooltip">Email<div class="tooltip-arrow"></div>
+              </div>
+              <div class="flip-inner">
+                <div class="flip-front">@</div>
+                <div class="flip-back">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+
+            <a href="https://www.wattpad.com/user/author_luna1" target="_blank" rel="noopener noreferrer" class="social-flip-node" style="--delay: 0.08s;">
+              <div class="social-tooltip">Wattpad<div class="tooltip-arrow"></div>
+              </div>
+              <div class="flip-inner">
+                <div class="flip-front">W</div>
+                <div class="flip-back">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.924 16.512l-1.076-4.636h-1.636l-1.034 4.542h-.103l-1.077-4.542H10.32l-1.034 4.542h-.102L8.106 11.876H6.126l2.196 9.385h2.152l.99-4.24h.103l.99 4.24h2.15l2.217-9.385h-1.98l-1.077 4.636h-.102z" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+        <form class="contact-form glass-card" id="contact-form">
+          <input type="text" name="honeypot_field" id="honeypot_field" style="display:none" tabindex="-1" autocomplete="off">
+          <div class="form-group">
+            <label for="email">Your Email</label>
+            <input type="email" id="email" name="email" required placeholder="stargazer@universe.com">
+          </div>
+          <div class="form-group">
+            <label for="message">Your Message</label>
+            <textarea id="message" name="message" required placeholder="Hello Luna..." rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Send Message</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; <span id="current-year">2026</span> Luna's World. A cosmic library for writers and dreamers.</p>
+  </footer>
+
+  <div class="astra-widget" id="astra-widget">
+    <button type="button" class="astra-toggle" id="astra-toggle" aria-expanded="false" aria-controls="astra-panel">✨
+      Chat ASTRA</button>
+    <div class="astra-panel glass-card" id="astra-panel" inert>
+      <div class="astra-header">
+        <div class="astra-titles">
+          <h4>ASTRA</h4>
+          <span>Luna's friendly writing assistant</span>
+        </div>
+        <button type="button" class="astra-close" id="astra-close" aria-label="Close Chat">&times;</button>
+      </div>
+      <div class="astra-messages" id="astra-messages" aria-live="polite">
+
+        <div class="msg astra-msg">
+          <div class="msg-bubble">Hello, I'm Astra, Luna's AI assistant. Welcome to Luna's World. How may I assist you
+            today?</div>
+        </div>
+
+        <div class="typing-indicator-container" id="astra-typing-indicator" style="display: none;">
+          <div class="typing-indicator"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+      <form class="astra-input" id="astra-input-form">
+        <input type="text" id="astra-input" placeholder="Ask about books, poetry..." autocomplete="off">
+        <button type="submit" aria-label="Send Message">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="expandable-backdrop" id="expandable-backdrop"></div>
+  <div class="expandable-modal glass-card" id="expandable-modal" inert>
+    <button type="button" class="expandable-close" id="expandable-close" aria-label="Close Modal">&times;</button>
+    <div class="expandable-image-container">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Modal Cover" id="expandable-image" loading="lazy">
+    </div>
+    <div class="expandable-content-wrapper">
+      <div class="expandable-header">
+        <div>
+          <h3 id="expandable-title">Title</h3>
+          <p class="meta" id="expandable-meta"></p>
+        </div>
+        <a href="#" id="expandable-link" class="btn-primary" target="_blank" rel="noopener noreferrer">Visit</a>
+      </div>
+      <div class="expandable-body" id="expandable-body">
+        <p id="expandable-description"></p>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script type="module" src="three/main.js"></script>
+</body>
+
+</html>
