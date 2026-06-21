@@ -5,7 +5,7 @@ export class HeroMoon {
     this.scene = scene;
     this.domElement = document.querySelector('.moon');
 
-    const geometry = new THREE.SphereGeometry(1, 64, 64);
+    const geometry = new THREE.SphereGeometry(1, 32, 32);
 
     const textureLoader = new THREE.TextureLoader();
     const moonTexture = textureLoader.load('assets/moon_1024.jpg');

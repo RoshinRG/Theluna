@@ -107,11 +107,31 @@ class CosmicApp {
 }
 
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    if (window.requestIdleCallback) {
-      window.requestIdleCallback(() => new CosmicApp(), { timeout: 2000 });
-    } else {
-      new CosmicApp();
+  let appStarted = false;
+  
+  const startApp = () => {
+    if (appStarted) return;
+    appStarted = true;
+    
+    const canvas = document.getElementById('webgl-canvas');
+    if (canvas) {
+      canvas.style.opacity = '0';
+      canvas.style.transition = 'opacity 2s ease-in-out';
     }
-  }, 100);
+    
+    new CosmicApp();
+    
+    if (canvas) {
+      setTimeout(() => {
+        canvas.style.opacity = '1';
+      }, 100);
+    }
+  };
+
+  const interactions = ['scroll', 'mousemove', 'touchstart', 'keydown', 'click'];
+  interactions.forEach(e => {
+    window.addEventListener(e, startApp, { once: true, passive: true });
+  });
+
+  setTimeout(startApp, 4500);
 });
