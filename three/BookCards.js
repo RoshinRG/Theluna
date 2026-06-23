@@ -130,8 +130,8 @@ export class BookCards {
 
       item.mesh.scale.set(widthIn3D, heightIn3D, 1);
 
-      item.mesh.rotation.x += (item.targetRotationX - item.mesh.rotation.x) * 0.1;
-      item.mesh.rotation.y += (item.targetRotationY - item.mesh.rotation.y) * 0.1;
+      item.mesh.rotation.x += (item.targetRotationX - item.mesh.rotation.x) * 0.3;
+      item.mesh.rotation.y += (item.targetRotationY - item.mesh.rotation.y) * 0.3;
 
       item.mesh.material.uniforms.time.value = time;
       item.mesh.material.uniforms.resolution.value.set(rect.width, rect.height);
