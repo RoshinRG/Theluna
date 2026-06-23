@@ -5,8 +5,6 @@ import { Nebula } from './Nebula.js';
 import { Sparkles } from './Sparkles.js';
 import { ShootingStar } from './ShootingStar.js';
 import { CursorTrail } from './CursorTrail.js';
-import { BookCards } from './BookCards.js';
-
 class CosmicApp {
   constructor() {
     this.canvas = document.getElementById('webgl-canvas');
@@ -93,10 +91,6 @@ class CosmicApp {
       this.renderer.render(this.scene, this.camera);
       await delay();
 
-      this.bookCards = new BookCards(this.scene);
-      this.renderer.render(this.scene, this.camera);
-      await delay();
-
       this.clock = new THREE.Clock();
       this.animate();
     } catch (err) {
@@ -131,7 +125,6 @@ class CosmicApp {
     if (this.sparkles) this.sparkles.update(time);
     if (this.shootingStar) this.shootingStar.update(time);
     if (this.cursorTrail) this.cursorTrail.update();
-    if (this.bookCards) this.bookCards.update(time, this.camera);
 
     this.renderer.render(this.scene, this.camera);
   }
