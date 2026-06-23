@@ -299,4 +299,19 @@
       }));
     const T = document.getElementById("current-year");
     T && (T.textContent = new Date().getFullYear());
+
+    // Magical Star Click Effect
+    document.addEventListener("click", (e) => {
+      const star = document.createElement("div");
+      star.className = "click-star";
+      star.textContent = "✦"; // U+2726 Black Four Pointed Star
+      star.style.left = `${e.clientX}px`;
+      star.style.top = `${e.clientY}px`;
+      document.body.appendChild(star);
+      
+      // Remove star after animation (0.7s)
+      setTimeout(() => {
+        star.remove();
+      }, 700);
+    });
   }));
