@@ -29,9 +29,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=optional"
-    rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap"></noscript>
 
   <link rel="stylesheet" href="styles.css">
 
@@ -97,13 +97,13 @@
           <span class="eyebrow hero-upcoming-title">Coming Soon</span>
           <div class="hero-upcoming-grid">
             <div class="glass-card hero-upcoming-card">
-              <div class="card-image hero-upcoming-image"><img src="assets/EIGHTEEN.png" alt="EIGHTEEN Cover"></div>
+              <div class="card-image hero-upcoming-image"><img src="assets/EIGHTEEN.webp" alt="EIGHTEEN Cover" width="280" height="350"></div>
               <span class="hero-upcoming-label">Upcoming Poem</span>
-              <h3 class="hero-upcoming-heading">EIGHTEEN</h3>
+              <h2 class="hero-upcoming-heading">EIGHTEEN</h2>
             </div>
             <div class="glass-card hero-upcoming-card">
               <span class="hero-upcoming-label">Upcoming Book</span>
-              <h3 class="hero-upcoming-heading">In Progress...</h3>
+              <h2 class="hero-upcoming-heading">In Progress...</h2>
             </div>
           </div>
         </div>
@@ -124,7 +124,7 @@
       </div>
       <div class="cards-grid">
         <div class="glass-card">
-          <div class="card-image"><img src="assets/The%20Hidden%20Bloodline.png" alt="The Hidden Bloodline Cover"></div>
+          <div class="card-image"><img src="assets/The%20Hidden%20Bloodline.webp" alt="The Hidden Bloodline Cover" width="280" height="350"></div>
           <div class="card-content">
             <h3>The Hidden Bloodline</h3>
             <p class="meta"><strong>Genre:</strong> Fantasy | <strong>Status:</strong> Ongoing |
@@ -158,7 +158,7 @@
       </div>
       <div class="cards-grid">
         <div class="glass-card">
-          <div class="card-image"><img src="assets/Whispers_of_Earth.png" alt="Whispers of Earth Cover"></div>
+          <div class="card-image"><img src="assets/Whispers_of_Earth.webp" alt="Whispers of Earth Cover" width="280" height="350"></div>
           <div class="card-content">
             <h3>Whispers of Earth</h3>
             <p class="meta"><strong>Genre:</strong> Dream Poetry</p>
@@ -170,7 +170,7 @@
           </div>
         </div>
         <div class="glass-card">
-          <div class="card-image"><img src="assets/She_Became_In_Silence.png" alt="She Became In Silence Cover"></div>
+          <div class="card-image"><img src="assets/She_Became_In_Silence.webp" alt="She Became In Silence Cover" width="280" height="350"></div>
           <div class="card-content">
             <h3>She Became In Silence</h3>
             <p class="meta"><strong>Genre:</strong> Cosmic Poetry</p>
@@ -182,7 +182,7 @@
           </div>
         </div>
         <div class="glass-card">
-          <div class="card-image"><img src="assets/Warmth_That_Burned.png" alt="Warmth That Burned Cover"></div>
+          <div class="card-image"><img src="assets/Warmth_That_Burned.webp" alt="Warmth That Burned Cover" width="280" height="350"></div>
           <div class="card-content">
             <h3>Warmth That Burned</h3>
             <p class="meta"><strong>Genre:</strong> Emotional Poetry</p>
@@ -195,7 +195,7 @@
           </div>
         </div>
         <div class="glass-card">
-          <div class="card-image"><img src="assets/EIGHTEEN.png" alt="EIGHTEEN Cover"></div>
+          <div class="card-image"><img src="assets/EIGHTEEN.webp" alt="EIGHTEEN Cover" width="280" height="350"></div>
           <div class="card-content">
             <h3>EIGHTEEN</h3>
             <p class="meta"><strong>Genre:</strong> Upcoming Poem</p>
@@ -216,7 +216,7 @@
       </div>
       <div class="cards-grid">
         <div class="glass-card">
-          <div class="card-image"><img src="assets/Library%20of%20stars.png" alt="Library of Stars Cover"></div>
+          <div class="card-image"><img src="assets/Library%20of%20stars.webp" alt="Library of Stars Cover" width="280" height="350"></div>
           <div class="card-content">
             <h3>Library of Stars</h3>
             <p class="description">A creative writing gallery inspired by celestial myths.</p>
@@ -226,7 +226,7 @@
           </div>
         </div>
         <div class="glass-card">
-          <div class="card-image"><img src="assets/Moonlit%20Journals.png" alt="Moonlit Journals Cover"></div>
+          <div class="card-image"><img src="assets/Moonlit%20Journals.webp" alt="Moonlit Journals Cover" width="280" height="350"></div>
           <div class="card-content">
             <h3>Moonlit Journals</h3>
             <p class="description">Personal writing prompts, sketches, and story seeds for creators.</p>
@@ -342,7 +342,7 @@
   <div class="expandable-modal glass-card" id="expandable-modal" inert>
     <button type="button" class="expandable-close" id="expandable-close" aria-label="Close Modal">&times;</button>
     <div class="expandable-image-container">
-      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Modal Cover" id="expandable-image">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Modal Cover" id="expandable-image" width="280" height="350">
     </div>
     <div class="expandable-content-wrapper">
       <div class="expandable-header">
