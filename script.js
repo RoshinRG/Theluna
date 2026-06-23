@@ -16,6 +16,14 @@
         (t && t.classList.add("hidden"),
           setTimeout(() => {
             t && t.remove();
+            
+            // Defer heavy Three.js background initialization to avoid performance penalty
+            const loadThreeJS = () => import('./three/main.js').catch(console.error);
+            if (window.requestIdleCallback) {
+              requestIdleCallback(loadThreeJS);
+            } else {
+              setTimeout(loadThreeJS, 1000);
+            }
           }, 900));
       }, 400));
   });
