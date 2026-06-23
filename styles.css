@@ -1269,6 +1269,7 @@ html.js-enabled .hero-section.spa-visible {
   align-items: flex-start;
   margin-bottom: 1.5rem;
   gap: 1rem;
+  padding-right: 3rem;
 }
 
 .expandable-header > div:first-child {
