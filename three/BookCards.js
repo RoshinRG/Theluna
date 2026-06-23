@@ -6,6 +6,9 @@ export class BookCards {
     this.cards = document.querySelectorAll('#books .glass-card');
     this.meshes = [];
 
+    this._vec = new THREE.Vector3();
+    this._pos = new THREE.Vector3();
+
     const geometry = new THREE.PlaneGeometry(1, 1, 16, 16);
 
     const material = new THREE.ShaderMaterial({
@@ -55,11 +58,11 @@ export class BookCards {
     this.cards.forEach((card, index) => {
       const mesh = new THREE.Mesh(geometry, material.clone());
       this.scene.add(mesh);
-      
+
       this.meshes.push({
         domElement: card,
         mesh: mesh,
-        baseYOffset: Math.random() * Math.PI * 2, 
+        baseYOffset: Math.random() * Math.PI * 2,
         isHovered: false,
         targetRotationX: 0,
         targetRotationY: 0
@@ -68,16 +71,16 @@ export class BookCards {
       card.addEventListener('mouseenter', () => {
         this.meshes[index].isHovered = true;
       });
-      
+
       card.addEventListener('mouseleave', () => {
         this.meshes[index].isHovered = false;
         this.meshes[index].targetRotationX = 0;
         this.meshes[index].targetRotationY = 0;
       });
-      
+
       card.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();
-        
+
         const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
         const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
 
@@ -96,41 +99,40 @@ export class BookCards {
         return;
       }
       item.mesh.visible = true;
-      
+
       const x = rect.left + rect.width / 2;
       const y = rect.top + rect.height / 2;
-      
+
       const ndcX = (x / window.innerWidth) * 2 - 1;
       const ndcY = -(y / window.innerHeight) * 2 + 1;
-      
-      const distance = -30; 
-      
-      const vec = new THREE.Vector3(ndcX, ndcY, 0.5);
-      vec.unproject(camera);
-      vec.sub(camera.position).normalize();
-      
-      const distanceToPlane = (distance - camera.position.z) / vec.z;
-      const pos = camera.position.clone().add(vec.multiplyScalar(distanceToPlane));
-      
-      item.mesh.position.copy(pos);
 
-      if (!item.isHovered) {
-        item.mesh.position.y += Math.sin(time * 1.5 + item.baseYOffset) * 0.3;
-      }
+      const distance = -30;
+
+      this._vec.set(ndcX, ndcY, 0.5)
+        .unproject(camera)
+        .sub(camera.position)
+        .normalize();
+
+      const distanceToPlane = (distance - camera.position.z) / this._vec.z;
+      this._pos.copy(camera.position).add(this._vec.multiplyScalar(distanceToPlane));
+
+      item.mesh.position.copy(this._pos);
+
+      // Removed the y bobbing because the HTML DOM element doesn't bob, which caused visual misalignment.
 
       const depth = camera.position.z - distance;
       const vFov = camera.fov * Math.PI / 180;
       const visibleHeight = 2 * Math.tan(vFov / 2) * depth;
       const visibleWidth = visibleHeight * camera.aspect;
-      
+
       const widthIn3D = (rect.width / window.innerWidth) * visibleWidth;
       const heightIn3D = (rect.height / window.innerHeight) * visibleHeight;
-      
+
       item.mesh.scale.set(widthIn3D, heightIn3D, 1);
 
       item.mesh.rotation.x += (item.targetRotationX - item.mesh.rotation.x) * 0.1;
       item.mesh.rotation.y += (item.targetRotationY - item.mesh.rotation.y) * 0.1;
-      
+
       item.mesh.material.uniforms.time.value = time;
       item.mesh.material.uniforms.resolution.value.set(rect.width, rect.height);
     });

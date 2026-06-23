@@ -62,20 +62,23 @@ export class HeroMoon {
     this.mesh = new THREE.Mesh(geometry, this.material);
     this.scene.add(this.mesh);
 
+    this._vec = new THREE.Vector3();
+    this._pos = new THREE.Vector3();
   }
 
   update(time, camera) {
-    
+    if (!this.domElement) return;
+    const rect = this.domElement.getBoundingClientRect();
+    if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+
     this.mesh.rotation.y += 0.002;
 
-    if (this.domElement && camera) {
-      this.matchDOMPosition(camera);
+    if (camera) {
+      this.matchDOMPosition(camera, rect);
     }
   }
 
-  matchDOMPosition(camera) {
-    const rect = this.domElement.getBoundingClientRect();
-
+  matchDOMPosition(camera, rect) {
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
     const width = rect.width;
@@ -85,14 +88,15 @@ export class HeroMoon {
 
     const distance = -20; 
 
-    const vec = new THREE.Vector3(ndcX, ndcY, 0.5);
-    vec.unproject(camera);
-    vec.sub(camera.position).normalize();
+    this._vec.set(ndcX, ndcY, 0.5)
+      .unproject(camera)
+      .sub(camera.position)
+      .normalize();
     
-    const distanceToPlane = (distance - camera.position.z) / vec.z;
-    const pos = camera.position.clone().add(vec.multiplyScalar(distanceToPlane));
+    const distanceToPlane = (distance - camera.position.z) / this._vec.z;
+    this._pos.copy(camera.position).add(this._vec.multiplyScalar(distanceToPlane));
     
-    this.mesh.position.copy(pos);
+    this.mesh.position.copy(this._pos);
 
     const depth = camera.position.z - distance;
     const vFov = camera.fov * Math.PI / 180;

@@ -4,6 +4,16 @@ const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW_MS = 60000; 
 const MAX_REQUESTS_PER_WINDOW = 5;
 
+// Periodically clean up stale rate limit entries to prevent memory leaks
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, data] of rateLimitMap) {
+    if (now > data.resetTime) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, RATE_LIMIT_WINDOW_MS);
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });

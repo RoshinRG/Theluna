@@ -1,25 +1,28 @@
-
 :root {
-  
+
   --bg-deep: #845EC2;
-  
+
   --bg-mid: #9B89B3;
-  
+
   --bg-warm: #D5CABD;
-  
+
   --highlight: #FEF7FF;
 
   --text-accent: #845EC2;
-  
+
   --text-body-light: #4B4453;
-  
+
   --text-body-dark: #B0A8B9;
 
-  --glass-bg: rgba(132, 94, 194, 0.15);
-  
-  --glass-border: rgba(155, 137, 179, 0.3);
-  
-  --glass-shadow: rgba(0, 0, 0, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  --glass-border-light: rgba(255, 255, 255, 0.3);
+
+  --glass-shadow: rgba(0, 0, 0, 0.25);
+
+  --glass-highlight: rgba(255, 255, 255, 0.15);
 
   --nav-bg: rgba(75, 68, 83, 0.4);
   --nav-spotlight-color: rgba(132, 94, 194, 0.3);
@@ -64,13 +67,29 @@
 }
 
 @keyframes loadingPulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.15); }
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
 }
 
 @keyframes loadingFloat {
-  0%, 100% { translate: 0 0; }
-  50% { translate: 0 -10px; }
+
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -10px;
+  }
 }
 
 .loading-title {
@@ -116,6 +135,16 @@
   outline-offset: 4px;
 }
 
+::selection {
+  background-color: var(--text-accent);
+  color: var(--highlight);
+}
+
+::-moz-selection {
+  background-color: var(--text-accent);
+  color: var(--highlight);
+}
+
 html.js-enabled {
   cursor: none;
 }
@@ -123,7 +152,7 @@ html.js-enabled {
 body {
   font-family: 'Inter', sans-serif;
   color: var(--text-body-dark);
-  
+
   background:
     radial-gradient(circle at 80% 20%, rgba(213, 202, 189, 0.15) 0%, transparent 40%),
     linear-gradient(135deg, #1a1025 0%, var(--bg-deep) 50%, var(--bg-mid) 100%);
@@ -194,13 +223,13 @@ html.js-enabled .cursor-dot {
   width: 40px;
   height: 40px;
   background-color: rgba(254, 247, 255, 0.15);
-  
+
   border-radius: 50%;
   pointer-events: none;
   z-index: 9998;
   transform: translate(calc(var(--cursor-x) - 50%), calc(var(--cursor-y) - 50%));
   transition: width 0.2s, height 0.2s, background-color 0.2s;
-  
+
   display: none;
 }
 
@@ -224,8 +253,8 @@ body.hovering .cursor-glow {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -3; 
-  pointer-events: none; 
+  z-index: -3;
+  pointer-events: none;
 }
 
 .star-field {
@@ -239,7 +268,7 @@ body.hovering .cursor-glow {
   background-size: 100px 100px;
   opacity: 0.1;
   pointer-events: none;
-  display: none; 
+  display: none;
 }
 
 .drifting-stars {
@@ -251,7 +280,7 @@ body.hovering .cursor-glow {
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
-  display: none; 
+  display: none;
 }
 
 .star-particle {
@@ -321,11 +350,11 @@ body.hovering .cursor-glow {
   padding: 0.5rem 1rem;
   z-index: 1000;
   overflow: hidden;
-  
+
   box-shadow: 0 4px 20px var(--glass-shadow);
 
   --spotlight-x: -100px;
-  
+
   --ambience-x: 50px;
   --ambience-width: 40px;
 }
@@ -448,15 +477,43 @@ h3 {
 }
 
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(135deg, var(--glass-highlight) 0%, var(--glass-bg) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
+  border-top: 1px solid var(--glass-border-light);
+  border-left: 1px solid var(--glass-border-light);
+  box-shadow: 0 8px 32px 0 var(--glass-shadow);
   border-radius: 28px;
   padding: 2rem;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.7s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glass-card:hover::before {
+  left: 200%;
+}
+
+.glass-card>* {
+  position: relative;
+  z-index: 2;
 }
 
 .card-image {
@@ -545,7 +602,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 4rem; 
+  padding-top: 4rem;
   gap: 2rem;
 }
 
@@ -556,12 +613,12 @@ main {
 }
 
 .hero-content .body-text {
-  margin-bottom: 1.5rem; 
+  margin-bottom: 1.5rem;
   font-size: 1.1rem;
 }
 
 .hero-upcoming {
-  margin-top: 2rem; 
+  margin-top: 2rem;
 }
 
 .hero-upcoming-title {
@@ -616,8 +673,8 @@ main {
   background: radial-gradient(circle at 30% 30%, var(--highlight), var(--bg-mid));
   box-shadow: 0 0 60px rgba(254, 247, 255, 0.2), inset -20px -20px 40px rgba(0, 0, 0, 0.5);
   position: relative;
-  
-  visibility: hidden; 
+
+  visibility: hidden;
 }
 
 .constellation-dot {
@@ -676,121 +733,7 @@ main {
   text-decoration: underline;
 }
 
-.social-flip-container {
-  display: flex;
-  gap: 1.5rem;
-  margin-top: 2rem;
-  position: relative;
-  align-items: center;
-}
 
-.social-border-lines {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  height: 2px;
-  background: rgba(255, 255, 255, 0.1);
-  z-index: 0;
-  border-radius: 2px;
-}
-
-.social-flip-node {
-  position: relative;
-  width: 50px;
-  height: 50px;
-  perspective: 1000px;
-  z-index: 1;
-  text-decoration: none;
-  animation: floatNode 3s ease-in-out infinite alternate;
-  animation-delay: var(--delay, 0s);
-}
-
-@keyframes floatNode {
-  from { transform: translateY(-3px); }
-  to { transform: translateY(3px); }
-}
-
-.flip-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-  transform-style: preserve-3d;
-  border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.social-flip-node:hover .flip-inner {
-  transform: rotateY(180deg);
-  box-shadow: 0 0 20px rgba(249, 248, 113, 0.4); 
-}
-
-.flip-front, .flip-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-light);
-}
-
-.flip-front {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.flip-back {
-  background: var(--highlight);
-  color: var(--bg-dark);
-  transform: rotateY(180deg);
-}
-
-.social-tooltip {
-  position: absolute;
-  bottom: calc(100% + 15px);
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--glass-border);
-  color: var(--text-light);
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.social-flip-node:hover .social-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-}
-
-.tooltip-arrow {
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%) rotate(45deg);
-  width: 10px;
-  height: 10px;
-  background: var(--glass-bg);
-  border-right: 1px solid var(--glass-border);
-  border-bottom: 1px solid var(--glass-border);
-}
 
 .contact-form .form-group {
   margin-bottom: 1.5rem;
@@ -814,7 +757,7 @@ main {
   color: var(--highlight);
   font-family: 'Inter', sans-serif;
   transition: border-color 0.3s ease;
-  
+
 }
 
 html.js-enabled .contact-form input,
@@ -905,7 +848,7 @@ html.js-enabled .contact-form textarea {
 
 html.js-enabled .social-flip-node {
   cursor: none;
-  
+
 }
 
 .flip-inner {
@@ -913,7 +856,7 @@ html.js-enabled .social-flip-node {
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
-  
+
   transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) var(--delay);
 }
 
@@ -1006,7 +949,7 @@ footer {
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  
+
 }
 
 .astra-toggle:hover {
@@ -1029,7 +972,7 @@ footer {
   transform-origin: bottom right;
   pointer-events: none;
   transition: opacity 0.3s ease, transform 0.3s ease;
-  
+
   background: rgba(30, 20, 45, 0.85);
 }
 
@@ -1068,11 +1011,15 @@ footer {
 }
 
 @keyframes typingBounce {
-  0%, 80%, 100% { 
+
+  0%,
+  80%,
+  100% {
     transform: scale(0);
     opacity: 0.6;
   }
-  40% { 
+
+  40% {
     transform: scale(1);
     opacity: 1;
   }
@@ -1206,7 +1153,7 @@ html.js-enabled .astra-input input {
 }
 
 html.js-enabled .spa-section {
-  display: none; 
+  display: none;
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
 }
@@ -1214,10 +1161,14 @@ html.js-enabled .spa-section {
 html.js-enabled .spa-section.spa-visible {
   display: block;
   opacity: 1;
-  
+
   padding-top: 8rem;
   padding-bottom: 4rem;
   min-height: 100vh;
+}
+
+html.js-enabled .hero-section.spa-visible {
+  display: flex;
 }
 
 .expandable-backdrop {
@@ -1294,12 +1245,16 @@ html.js-enabled .spa-section.spa-visible {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-radius: 16px 16px 0 0;
 }
 
 .expandable-image-container img {
-  width: 100%;
-  height: 100%;
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
   object-fit: contain;
+  border-radius: 8px;
 }
 
 .expandable-content-wrapper {
@@ -1314,6 +1269,17 @@ html.js-enabled .spa-section.spa-visible {
   align-items: flex-start;
   margin-bottom: 1.5rem;
   gap: 1rem;
+}
+
+.expandable-header > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+#expandable-meta {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  font-size: 0.85rem;
 }
 
 .expandable-header h3 {
@@ -1352,6 +1318,14 @@ html.js-enabled .spa-section.spa-visible {
 }
 
 @media (max-width: 720px) {
+  .expandable-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .expandable-header > a.btn-primary {
+    align-self: flex-start;
+  }
+
   .spotlight-nav {
     width: 90%;
     padding: 0.5rem;
@@ -1387,7 +1361,7 @@ html.js-enabled .spa-section.spa-visible {
 }
 
 @media (hover: none) and (pointer: coarse) {
-  
+
   .cursor-dot,
   .cursor-glow {
     display: none !important;
@@ -1408,7 +1382,7 @@ html.js-enabled .spa-section.spa-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  
+
   *,
   *::before,
   *::after {
@@ -1417,7 +1391,7 @@ html.js-enabled .spa-section.spa-visible {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   .star-particle {
     display: none;
   }

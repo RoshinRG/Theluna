@@ -7,6 +7,14 @@ export class CursorTrail {
     
     this.trailLength = 25;
     this.mouseHistory = [];
+    this._vec = new THREE.Vector3();
+
+    // Pre-allocate a pool of Vector3 objects to avoid clone() every frame
+    this._pool = [];
+    for (let i = 0; i < this.trailLength + 5; i++) {
+      this._pool.push(new THREE.Vector3());
+    }
+    this._poolIndex = 0;
     
     const geometry = new THREE.BufferGeometry();
     this.positions = new Float32Array(this.trailLength * 3);
@@ -59,12 +67,13 @@ export class CursorTrail {
       const ndcX = (e.clientX / window.innerWidth) * 2 - 1;
       const ndcY = -(e.clientY / window.innerHeight) * 2 + 1;
       
-      const vec = new THREE.Vector3(ndcX, ndcY, 0.5);
-      vec.unproject(this.camera);
-      vec.sub(this.camera.position).normalize();
+      this._vec.set(ndcX, ndcY, 0.5)
+        .unproject(this.camera)
+        .sub(this.camera.position)
+        .normalize();
 
-      const distance = (-10 - this.camera.position.z) / vec.z;
-      this.target.copy(this.camera.position).add(vec.multiplyScalar(distance));
+      const distance = (-10 - this.camera.position.z) / this._vec.z;
+      this.target.copy(this.camera.position).add(this._vec.multiplyScalar(distance));
     });
   }
 
@@ -83,7 +92,11 @@ export class CursorTrail {
     }
     this.isMoving = false; 
 
-    this.mouseHistory.unshift(this.target.clone());
+    // Reuse a pooled vector instead of cloning
+    const pooled = this._pool[this._poolIndex];
+    pooled.copy(this.target);
+    this._poolIndex = (this._poolIndex + 1) % this._pool.length;
+    this.mouseHistory.unshift(pooled);
 
     if (this.mouseHistory.length > this.trailLength) {
       this.mouseHistory.pop();

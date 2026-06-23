@@ -7,21 +7,49 @@ export class ShootingStar {
     this.stars = [];
 
     const geometry = new THREE.PlaneGeometry(60, 0.4);
+    
+    this.opacityArray = new Float32Array(this.starCount);
+    geometry.setAttribute('instanceOpacity', new THREE.InstancedBufferAttribute(this.opacityArray, 1));
+
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
-      transparent: true,
-      opacity: 0,
       blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
+      transparent: true,
+      depthWrite: false
     });
+
+    material.onBeforeCompile = (shader) => {
+      shader.vertexShader = `
+        attribute float instanceOpacity;
+        varying float vInstanceOpacity;
+      ` + shader.vertexShader.replace(
+        `void main() {`,
+        `void main() {\n  vInstanceOpacity = instanceOpacity;`
+      );
+      
+      shader.fragmentShader = `
+        varying float vInstanceOpacity;
+      ` + shader.fragmentShader.replace(
+        `vec4 diffuseColor = vec4( diffuse, opacity );`,
+        `vec4 diffuseColor = vec4( diffuse, opacity * vInstanceOpacity );`
+      );
+    };
+    
+    this.instancedMesh = new THREE.InstancedMesh(geometry, material, this.starCount);
+    
+    // Initialize all instances off-screen
+    const dummy = new THREE.Object3D();
+    dummy.position.set(0, 0, -100);
+    dummy.scale.set(0.001, 0.001, 0.001); // Tiny instead of 0 to avoid degenerate matrix
+    dummy.updateMatrix();
     
     for (let i = 0; i < this.starCount; i++) {
-      const mesh = new THREE.Mesh(geometry, material.clone());
-      mesh.position.z = -100;
-      this.scene.add(mesh);
+      this.instancedMesh.setMatrixAt(i, dummy.matrix);
+      this.opacityArray[i] = 0; 
       
       this.stars.push({
-        mesh: mesh,
+        index: i,
         isActive: false,
         progress: 0,
         speed: 0,
@@ -32,9 +60,16 @@ export class ShootingStar {
         nextSpawnTime: Math.random() * 5 
       });
     }
+    
+    this.instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    this.scene.add(this.instancedMesh);
+    
+    this.dummy = new THREE.Object3D();
   }
 
   update(time) {
+    let needsUpdate = false;
+    
     this.stars.forEach(star => {
       if (!star.isActive) {
         if (time > star.nextSpawnTime) {
@@ -47,7 +82,8 @@ export class ShootingStar {
       
       if (star.progress > 1) {
         star.isActive = false;
-        star.mesh.material.opacity = 0;
+        this.opacityArray[star.index] = 0;
+        needsUpdate = true;
         
         star.nextSpawnTime = time + Math.random() * 2.5 + 0.5; 
         return;
@@ -55,11 +91,22 @@ export class ShootingStar {
 
       const x = THREE.MathUtils.lerp(star.startX, star.endX, star.progress);
       const y = THREE.MathUtils.lerp(star.startY, star.endY, star.progress);
-      star.mesh.position.set(x, y, -100);
+      
+      this.dummy.position.set(x, y, -100);
+      this.dummy.rotation.z = star.angle;
+      this.dummy.updateMatrix();
+      this.instancedMesh.setMatrixAt(star.index, this.dummy.matrix);
 
-      const fade = Math.sin(star.progress * Math.PI);
-      star.mesh.material.opacity = fade * 0.8;
+      const fade = Math.sin(star.progress * Math.PI) * 0.8;
+      this.opacityArray[star.index] = fade;
+      
+      needsUpdate = true;
     });
+    
+    if (needsUpdate) {
+      this.instancedMesh.instanceMatrix.needsUpdate = true;
+      this.instancedMesh.geometry.attributes.instanceOpacity.needsUpdate = true;
+    }
   }
   
   spawn(star) {
@@ -73,7 +120,6 @@ export class ShootingStar {
     star.endX = star.startX - (Math.random() * 300 + 200); 
     star.endY = star.startY - (Math.random() * 300 + 200);
 
-    const angle = Math.atan2(star.endY - star.startY, star.endX - star.startX);
-    star.mesh.rotation.z = angle;
+    star.angle = Math.atan2(star.endY - star.startY, star.endX - star.startX);
   }
 }

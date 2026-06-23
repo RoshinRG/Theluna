@@ -41,44 +41,67 @@ class CosmicApp {
       this.targetCameraY = -this.scrollY * 0.05; 
     });
 
-    window.addEventListener('resize', this.onWindowResize.bind(this));
+    this._boundResize = this.onWindowResize.bind(this);
+    window.addEventListener('resize', this._boundResize);
+
+    this._boundAnimate = this.animate.bind(this);
+
+    this._prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this._reducedMotion = this._prefersReducedMotion.matches;
+    this._prefersReducedMotion.addEventListener('change', (e) => {
+      this._reducedMotion = e.matches;
+    });
+    
+    document.addEventListener('visibilitychange', () => {
+      if (!this.clock) return;
+      if (document.hidden) {
+        this.clock.stop();
+      } else {
+        this.clock.start();
+        this.animate();
+      }
+    });
 
     this.initModulesAsync();
   }
 
   async initModulesAsync() {
-    const delay = () => new Promise(res => setTimeout(res, 30));
+    try {
+      const delay = () => new Promise(res => setTimeout(res, 30));
 
-    this.starfield = new Starfield(this.scene);
-    this.renderer.render(this.scene, this.camera);
-    await delay();
+      this.starfield = new Starfield(this.scene);
+      this.renderer.render(this.scene, this.camera);
+      await delay();
 
-    this.heroMoon = new HeroMoon(this.scene);
-    this.renderer.render(this.scene, this.camera);
-    await delay();
+      this.heroMoon = new HeroMoon(this.scene);
+      this.renderer.render(this.scene, this.camera);
+      await delay();
 
-    this.nebula = new Nebula(this.scene);
-    this.renderer.render(this.scene, this.camera);
-    await delay();
+      this.nebula = new Nebula(this.scene);
+      this.renderer.render(this.scene, this.camera);
+      await delay();
 
-    this.sparkles = new Sparkles(this.scene);
-    this.renderer.render(this.scene, this.camera);
-    await delay();
+      this.sparkles = new Sparkles(this.scene);
+      this.renderer.render(this.scene, this.camera);
+      await delay();
 
-    this.shootingStar = new ShootingStar(this.scene);
-    this.renderer.render(this.scene, this.camera);
-    await delay();
+      this.shootingStar = new ShootingStar(this.scene);
+      this.renderer.render(this.scene, this.camera);
+      await delay();
 
-    this.cursorTrail = new CursorTrail(this.scene, this.camera);
-    this.renderer.render(this.scene, this.camera);
-    await delay();
+      this.cursorTrail = new CursorTrail(this.scene, this.camera);
+      this.renderer.render(this.scene, this.camera);
+      await delay();
 
-    this.bookCards = new BookCards(this.scene);
-    this.renderer.render(this.scene, this.camera);
-    await delay();
+      this.bookCards = new BookCards(this.scene);
+      this.renderer.render(this.scene, this.camera);
+      await delay();
 
-    this.clock = new THREE.Clock();
-    this.animate();
+      this.clock = new THREE.Clock();
+      this.animate();
+    } catch (err) {
+      console.error('[CosmicApp] Module init failed:', err);
+    }
   }
 
   onWindowResize() {
@@ -88,11 +111,19 @@ class CosmicApp {
   }
 
   animate() {
-    requestAnimationFrame(this.animate.bind(this));
+    if (document.hidden) return;
+    
+    if (this._reducedMotion) {
+      this.renderer.render(this.scene, this.camera);
+      return;
+    }
+
+    requestAnimationFrame(this._boundAnimate);
 
     const time = this.clock.getElapsedTime();
 
     this.camera.position.y += (this.targetCameraY - this.camera.position.y) * 0.05;
+    this.camera.updateMatrixWorld();
 
     if (this.starfield) this.starfield.update(time);
     if (this.heroMoon) this.heroMoon.update(time, this.camera);
