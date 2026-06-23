@@ -9,9 +9,9 @@ export class Nebula {
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        color1: { value: new THREE.Color('#2C1B4D') }, 
-        color2: { value: new THREE.Color('#845EC2') }, 
-        color3: { value: new THREE.Color('#D5CABD') }  
+        color1: { value: new THREE.Color('#1A0F30') }, 
+        color2: { value: new THREE.Color('#503780') }, 
+        color3: { value: new THREE.Color('#968D84') }  
       },
       vertexShader: `
         varying vec2 vUv;
@@ -62,7 +62,7 @@ export class Nebula {
           vec3 col = mix(color1, color2, r);
           col = mix(col, color3, q * 0.5);
 
-          float alpha = r * 1.5;
+          float alpha = r * 1.0;
           gl_FragColor = vec4(col, alpha); 
         }
       `,
