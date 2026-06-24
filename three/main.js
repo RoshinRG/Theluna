@@ -156,10 +156,8 @@ interactions.forEach(e => {
   window.addEventListener(e, startApp, { once: true, passive: true });
 });
 
-// If document is already loaded, we don't need a massive 4.5s delay, just 500ms
 if (document.readyState === 'complete') {
-  setTimeout(startApp, 500);
+  setTimeout(startApp, 100);
 } else {
-  setTimeout(startApp, 4500);
-  window.addEventListener('load', startApp);
+  window.addEventListener('load', () => setTimeout(startApp, 100));
 }
