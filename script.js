@@ -229,13 +229,13 @@
             return;
           }
 
-          const formData = new FormData();
-          formData.append("email", email);
-          formData.append("message", message);
+          const params = new URLSearchParams();
+          params.append("email", email);
+          params.append("message", message);
 
           await fetch(googleScriptUrl, {
             method: "POST",
-            body: formData,
+            body: params,
             mode: "no-cors" // Required for Google Apps Script Web Apps
           });
 
