@@ -89,10 +89,9 @@ class CosmicApp {
   animate() {
     if (document.hidden) return;
     
-    if (this._reducedMotion) {
-      this.renderer.render(this.scene, this.camera);
-      return;
-    }
+    // We won't stop the animation loop entirely for reduced motion, 
+    // otherwise textures won't load and the screen stays blank.
+    // If you want to support reduced motion, you could slow down the time multiplier here instead.
 
     requestAnimationFrame(this._boundAnimate);
 
