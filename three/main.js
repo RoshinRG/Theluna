@@ -130,32 +130,36 @@ class CosmicApp {
   }
 }
 
-window.addEventListener('load', () => {
-  let appStarted = false;
+let appStarted = false;
+
+const startApp = () => {
+  if (appStarted) return;
+  appStarted = true;
   
-  const startApp = () => {
-    if (appStarted) return;
-    appStarted = true;
-    
-    const canvas = document.getElementById('webgl-canvas');
-    if (canvas) {
-      canvas.style.opacity = '0';
-      canvas.style.transition = 'opacity 2s ease-in-out';
-    }
-    
-    new CosmicApp();
-    
-    if (canvas) {
-      setTimeout(() => {
-        canvas.style.opacity = '1';
-      }, 100);
-    }
-  };
+  const canvas = document.getElementById('webgl-canvas');
+  if (canvas) {
+    canvas.style.opacity = '0';
+    canvas.style.transition = 'opacity 2s ease-in-out';
+  }
+  
+  new CosmicApp();
+  
+  if (canvas) {
+    setTimeout(() => {
+      canvas.style.opacity = '1';
+    }, 100);
+  }
+};
 
-  const interactions = ['scroll', 'mousemove', 'touchstart', 'keydown', 'click'];
-  interactions.forEach(e => {
-    window.addEventListener(e, startApp, { once: true, passive: true });
-  });
-
-  setTimeout(startApp, 4500);
+const interactions = ['scroll', 'mousemove', 'touchstart', 'keydown', 'click'];
+interactions.forEach(e => {
+  window.addEventListener(e, startApp, { once: true, passive: true });
 });
+
+// If document is already loaded, we don't need a massive 4.5s delay, just 500ms
+if (document.readyState === 'complete') {
+  setTimeout(startApp, 500);
+} else {
+  setTimeout(startApp, 4500);
+  window.addEventListener('load', startApp);
+}
