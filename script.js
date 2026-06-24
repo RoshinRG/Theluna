@@ -217,23 +217,27 @@
         ((e.innerText = "Sending..."), (e.disabled = !0));
 
         try {
-          const formspreeEndpoint = "https://formspree.io/f/YOUR_FORMSPREE_ENDPOINT";
-          if (formspreeEndpoint.includes("YOUR_FORMSPREE_ENDPOINT")) {
-            console.warn("Contact form: Formspree endpoint not configured. Update the URL in script.js.");
-            e.innerText = "Not configured yet";
+          const googleScriptUrl = "YOUR_GOOGLE_SCRIPT_URL";
+          
+          if (googleScriptUrl === "YOUR_GOOGLE_SCRIPT_URL") {
+            console.warn("Contact form: Google Script URL not configured.");
+            e.innerText = "Setup Required";
             return;
           }
-          await fetch(formspreeEndpoint, {
+
+          const formData = new FormData();
+          formData.append("email", email);
+          formData.append("message", message);
+
+          await fetch(googleScriptUrl, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({ email, message }),
+            body: formData,
+            mode: "no-cors" // Required for Google Apps Script Web Apps
           });
-          ((e.innerText = "Message Sent! ✨"),
-            (e.style.background = "var(--bg-mid)"),
-            h.reset());
+
+          e.innerText = "Message Sent! ✨";
+          e.style.background = "var(--bg-mid)";
+          h.reset();
         } catch (err) {
           console.error("Contact form error:", err);
           e.innerText = "Error Sending";
