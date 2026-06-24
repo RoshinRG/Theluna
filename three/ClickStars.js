@@ -53,20 +53,25 @@ export class ClickStars {
           vec2 xy = gl_PointCoord.xy - vec2(0.5);
           float d = length(xy);
           
-          // Create a 4-point star shape using a classic math trick
+          // Fades to exactly 0 at the edge of the particle quad
+          float edgeFade = 1.0 - (d * 2.0); 
+          if (edgeFade < 0.0) discard;
+          
+          // Cross rays
           float crossShape = min(abs(xy.x), abs(xy.y));
-          float star = 0.01 / (d + 0.01) + 0.005 / (crossShape + 0.001);
+          float rays = 0.005 / (crossShape + 0.001);
           
-          // Smooth inner core
-          if (d < 0.05) star += 1.0;
+          // Central glowing core
+          float core = 0.015 / (d + 0.01);
           
-          // Fade out over 2 seconds
+          // Combine and apply the edge fade with a power curve for a sharp, elegant taper
+          float star = (core + rays) * pow(edgeFade, 3.0);
+          
+          // Fade out over its 2 second lifespan
           float fade = 1.0 - (vAge / 2.0);
-          float alpha = star * fade * 1.5;
+          float alpha = star * fade;
           
-          if (alpha < 0.01) discard;
-          
-          gl_FragColor = vec4(color, alpha);
+          gl_FragColor = vec4(color, alpha * 1.5);
         }
       `,
       transparent: true,
