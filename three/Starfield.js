@@ -3,7 +3,9 @@ import * as THREE from 'three';
 export class Starfield {
   constructor(scene) {
     this.scene = scene;
-    this.particleCount = 1500; 
+    
+    // Dramatically reduce particle count on mobile for performance
+    this.particleCount = window.innerWidth <= 768 ? 400 : 1500; 
     
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(this.particleCount * 3);

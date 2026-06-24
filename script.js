@@ -3,30 +3,34 @@
     t = document.getElementById("loading-screen");
   let n = 0;
   const o = setInterval(() => {
-    (n < 80
+    n < 80
       ? (n += 8 * Math.random() + 2)
       : n < 95 && (n += 0.5 * Math.random()),
       (n = Math.min(n, 95)),
-      e && (e.style.width = n + "%"));
-  }, 150);
-  window.addEventListener("load", () => {
-    (clearInterval(o),
-      e && (e.style.width = "100%"),
+      e && (e.style.width = n + "%");
+  }, 50);
+
+  const hideLoader = () => {
+    clearInterval(o);
+    if (e) e.style.width = "100%";
+    setTimeout(() => {
+      if (t) t.classList.add("hidden");
       setTimeout(() => {
-        (t && t.classList.add("hidden"),
-          setTimeout(() => {
-            t && t.remove();
-            
-            // Defer heavy Three.js background initialization to avoid performance penalty
-            const loadThreeJS = () => import('./three/main.js').catch(console.error);
-            if (window.requestIdleCallback) {
-              requestIdleCallback(loadThreeJS);
-            } else {
-              setTimeout(loadThreeJS, 1000);
-            }
-          }, 900));
-      }, 400));
-  });
+        if (t) t.remove();
+        
+        // Defer heavy Three.js background initialization
+        const loadThreeJS = () => import('./three/main.js').catch(console.error);
+        if (window.requestIdleCallback) {
+          requestIdleCallback(loadThreeJS);
+        } else {
+          setTimeout(loadThreeJS, 100);
+        }
+      }, 500);
+    }, 200);
+  };
+
+  window.addEventListener("load", hideLoader);
+  setTimeout(hideLoader, 1500);
 })(),
   document.addEventListener("DOMContentLoaded", () => {
     const e = document.documentElement;

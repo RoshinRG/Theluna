@@ -1143,15 +1143,19 @@ html.js-enabled .astra-input input {
 }
 
 html.js-enabled .spa-section {
-  display: none;
+  display: block;
+  visibility: hidden;
   opacity: 0;
+  height: 0;
+  overflow: hidden;
   transition: opacity 0.5s ease-in-out;
 }
 
 html.js-enabled .spa-section.spa-visible {
-  display: block;
+  visibility: visible;
   opacity: 1;
-
+  height: auto;
+  overflow: visible;
   padding-top: 8rem;
   padding-bottom: 4rem;
   min-height: 100vh;
