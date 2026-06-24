@@ -315,6 +315,8 @@
 
     // Magical Star Click Effect
     document.addEventListener("click", (e) => {
+      if (window.innerWidth <= 768) return; // Desktop only
+      
       const star = document.createElement("div");
       star.className = "click-star";
       star.textContent = "✦"; // U+2726 Black Four Pointed Star

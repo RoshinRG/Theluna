@@ -37,10 +37,10 @@ export class ClickStars {
           // Star grows quickly then stays and shrinks
           float scale = 0.0;
           if (vAge >= 0.0 && vAge < 2.0) {
-            scale = sin(vAge * 3.14159 / 2.0) * 180.0; 
+            scale = sin(vAge * 3.14159 / 2.0) * 800.0; 
           }
           
-          gl_PointSize = scale * (15.0 / -mvPosition.z);
+          gl_PointSize = scale * (50.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
         }
       `,
@@ -82,8 +82,8 @@ export class ClickStars {
     this.currentIndex = 0;
     
     window.addEventListener('click', (e) => {
-      // Desktop only check
-      if (window.innerWidth <= 768 || window.matchMedia("(pointer: coarse)").matches) return;
+      // Desktop only check (removed pointer:coarse because it blocks touch laptops)
+      if (window.innerWidth <= 768) return;
       this.spawnStar(e.clientX, e.clientY);
     });
   }
