@@ -64,38 +64,18 @@ class CosmicApp {
   }
 
   async initModulesAsync() {
-    try {
-      const delay = () => new Promise(res => setTimeout(res, 30));
+    const delay = () => new Promise(res => setTimeout(res, 30));
 
-      this.starfield = new Starfield(this.scene);
-      this.renderer.render(this.scene, this.camera);
-      await delay();
+    try { this.starfield = new Starfield(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('Starfield error', e); }
+    try { this.heroMoon = new HeroMoon(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('HeroMoon error', e); }
+    try { this.nebula = new Nebula(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('Nebula error', e); }
+    try { this.sparkles = new Sparkles(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('Sparkles error', e); }
+    try { this.shootingStar = new ShootingStar(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('ShootingStar error', e); }
+    try { this.cursorTrail = new CursorTrail(this.scene, this.camera); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('CursorTrail error', e); }
 
-      this.heroMoon = new HeroMoon(this.scene);
-      this.renderer.render(this.scene, this.camera);
-      await delay();
-
-      this.nebula = new Nebula(this.scene);
-      this.renderer.render(this.scene, this.camera);
-      await delay();
-
-      this.sparkles = new Sparkles(this.scene);
-      this.renderer.render(this.scene, this.camera);
-      await delay();
-
-      this.shootingStar = new ShootingStar(this.scene);
-      this.renderer.render(this.scene, this.camera);
-      await delay();
-
-      this.cursorTrail = new CursorTrail(this.scene, this.camera);
-      this.renderer.render(this.scene, this.camera);
-      await delay();
-
-      this.clock = new THREE.Clock();
-      this.animate();
-    } catch (err) {
-      console.error('[CosmicApp] Module init failed:', err);
-    }
+    console.log('[CosmicApp] All modules initialized, starting animation loop.');
+    this.clock = new THREE.Clock();
+    this.animate();
   }
 
   onWindowResize() {

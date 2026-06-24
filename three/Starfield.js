@@ -36,7 +36,7 @@ export class Starfield {
           vPhase = phase;
           vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
           
-          gl_PointSize = size * (400.0 / -mvPosition.z);
+          gl_PointSize = size * (2000.0 / -mvPosition.z);
           gl_Position = projectionMatrix * mvPosition;
         }
       `,
