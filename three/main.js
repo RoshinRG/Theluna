@@ -5,6 +5,8 @@ import { Nebula } from './Nebula.js';
 import { Sparkles } from './Sparkles.js';
 import { ShootingStar } from './ShootingStar.js';
 import { CursorTrail } from './CursorTrail.js';
+import { ClickStars } from './ClickStars.js';
+
 class CosmicApp {
   constructor() {
     console.log('🌟 [CosmicApp] Initializing... Three.js version:', THREE.REVISION);
@@ -74,6 +76,7 @@ class CosmicApp {
     try { this.sparkles = new Sparkles(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('Sparkles error', e); }
     try { this.shootingStar = new ShootingStar(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('ShootingStar error', e); }
     try { this.cursorTrail = new CursorTrail(this.scene, this.camera); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('CursorTrail error', e); }
+    try { this.clickStars = new ClickStars(this.scene, this.camera); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('ClickStars error', e); }
 
     console.log('[CosmicApp] All modules initialized, starting animation loop.');
     this.clock = new THREE.Clock();
@@ -106,6 +109,7 @@ class CosmicApp {
     if (this.sparkles) this.sparkles.update(time);
     if (this.shootingStar) this.shootingStar.update(time);
     if (this.cursorTrail) this.cursorTrail.update();
+    if (this.clickStars) this.clickStars.update(time);
 
     this.renderer.render(this.scene, this.camera);
   }
