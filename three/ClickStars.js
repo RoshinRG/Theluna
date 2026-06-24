@@ -76,6 +76,7 @@ export class ClickStars {
 
     this.points = new THREE.Points(geometry, this.material);
     this.points.renderOrder = 999; // Render on top
+    this.points.frustumCulled = false; // Prevent culling when points update
     this.scene.add(this.points);
     
     this._vec = new THREE.Vector3();
