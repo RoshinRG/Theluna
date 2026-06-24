@@ -7,7 +7,9 @@ import { ShootingStar } from './ShootingStar.js';
 import { CursorTrail } from './CursorTrail.js';
 class CosmicApp {
   constructor() {
+    console.log('🌟 [CosmicApp] Initializing... Three.js version:', THREE.REVISION);
     this.canvas = document.getElementById('webgl-canvas');
+    console.log('🌟 [CosmicApp] Canvas found:', !!this.canvas);
     if (!this.canvas) return;
 
     this.scene = new THREE.Scene();
