@@ -217,7 +217,7 @@
         ((e.innerText = "Sending..."), (e.disabled = !0));
 
         try {
-          const googleScriptUrl = "YOUR_GOOGLE_SCRIPT_URL";
+          const googleScriptUrl = "https://script.google.com/macros/s/AKfycbyi8kjDjZ4SpE9xnvBO4Gnr6z3fLADdp54dWmhAl22ogBWY5YjADxjlJDWOiM5h8XqN/exec";
           
           if (googleScriptUrl === "YOUR_GOOGLE_SCRIPT_URL") {
             console.warn("Contact form: Google Script URL not configured.");
