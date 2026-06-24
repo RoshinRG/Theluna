@@ -54,8 +54,8 @@ export class ClickStars {
           float d = length(xy);
           
           // Create a 4-point star shape using a classic math trick
-          float cross = min(abs(xy.x), abs(xy.y));
-          float star = 0.01 / (d + 0.01) + 0.005 / (cross + 0.001);
+          float crossShape = min(abs(xy.x), abs(xy.y));
+          float star = 0.01 / (d + 0.01) + 0.005 / (crossShape + 0.001);
           
           // Smooth inner core
           if (d < 0.05) star += 1.0;
