@@ -46,10 +46,15 @@
       });
     const t = document.getElementById("spotlight-nav"),
       n = document.querySelectorAll(".nav-link");
+    let navRafId = null;
     t.addEventListener("mousemove", (e) => {
-      const n = t.getBoundingClientRect(),
-        o = e.clientX - n.left;
-      t.style.setProperty("--spotlight-x", `${o}px`);
+      const clientX = e.clientX;
+      if (navRafId) cancelAnimationFrame(navRafId);
+      navRafId = requestAnimationFrame(() => {
+        const n = t.getBoundingClientRect(),
+          o = clientX - n.left;
+        t.style.setProperty("--spotlight-x", `${o}px`);
+      });
     });
     const o = document.querySelectorAll(".spa-section");
     function s() {
@@ -70,12 +75,12 @@
       (a &&
         (function (e) {
           if (!e) return;
-          (n.forEach((e) => e.classList.remove("active")),
-            e.classList.add("active"));
           const o = e.getBoundingClientRect(),
             s = t.getBoundingClientRect(),
             a = o.left - s.left,
             i = o.width;
+          (n.forEach((e) => e.classList.remove("active")),
+            e.classList.add("active"));
           (t.style.setProperty("--ambience-x", `${a}px`),
             t.style.setProperty("--ambience-width", `${i}px`));
         })(a),
