@@ -1,37 +1,40 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
-const isBot = /Lighthouse|PTST|Speed Insights|Chrome-Lighthouse|Googlebot|HeadlessChrome/i.test(navigator.userAgent);
+const isBot =
+  /Lighthouse|PTST|Speed Insights|Chrome-Lighthouse|Googlebot|HeadlessChrome/i.test(
+    navigator.userAgent,
+  );
 
 // --- Starfield.js ---
 class Starfield {
   constructor(scene) {
     this.scene = scene;
-    
+
     // Dramatically reduce particle count on mobile for performance
-    this.particleCount = window.innerWidth <= 768 ? 400 : 1500; 
-    
+    this.particleCount = window.innerWidth <= 768 ? 400 : 1500;
+
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(this.particleCount * 3);
     const sizes = new Float32Array(this.particleCount);
-    const phases = new Float32Array(this.particleCount); 
+    const phases = new Float32Array(this.particleCount);
 
     for (let i = 0; i < this.particleCount; i++) {
       positions[i * 3] = (Math.random() - 0.5) * 4000;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 4000;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 4000;
-      
-      sizes[i] = Math.random() * 2.5 + 0.5; 
-      phases[i] = Math.random() * Math.PI * 2; 
+
+      sizes[i] = Math.random() * 2.5 + 0.5;
+      phases[i] = Math.random() * Math.PI * 2;
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-    geometry.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+    geometry.setAttribute("phase", new THREE.BufferAttribute(phases, 1));
 
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        color: { value: new THREE.Color('#FEF7FF') } 
+        color: { value: new THREE.Color("#FEF7FF") },
       },
       vertexShader: `
         attribute float size;
@@ -66,7 +69,7 @@ class Starfield {
       `,
       transparent: true,
       blending: THREE.AdditiveBlending,
-      depthWrite: false
+      depthWrite: false,
     });
 
     this.points = new THREE.Points(geometry, this.material);
@@ -75,7 +78,7 @@ class Starfield {
 
   update(time) {
     this.material.uniforms.time.value = time;
-    
+
     this.points.rotation.y = time * 0.02;
     this.points.rotation.x = time * 0.01;
   }
@@ -85,27 +88,27 @@ class Starfield {
 class Sparkles {
   constructor(scene) {
     this.scene = scene;
-    this.count = 150; 
-    
+    this.count = 150;
+
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(this.count * 3);
     const speeds = new Float32Array(this.count);
-    
+
     for (let i = 0; i < this.count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 800; 
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 800; 
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 200; 
-      
+      positions[i * 3] = (Math.random() - 0.5) * 800;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 800;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 200;
+
       speeds[i] = Math.random() * 0.2 + 0.1;
     }
-    
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('speed', new THREE.BufferAttribute(speeds, 1));
-    
+
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("speed", new THREE.BufferAttribute(speeds, 1));
+
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        color: { value: new THREE.Color('#D5CABD') } 
+        color: { value: new THREE.Color("#D5CABD") },
       },
       vertexShader: `
         attribute float speed;
@@ -139,7 +142,7 @@ class Sparkles {
       `,
       transparent: true,
       blending: THREE.AdditiveBlending,
-      depthWrite: false
+      depthWrite: false,
     });
 
     this.points = new THREE.Points(geometry, this.material);
@@ -155,51 +158,62 @@ class Sparkles {
 class ShootingStar {
   constructor(scene) {
     this.scene = scene;
-    this.starCount = 20; 
+    this.starCount = 20;
     this.stars = [];
 
     const geometry = new THREE.PlaneGeometry(60, 0.4);
-    
+
     this.opacityArray = new Float32Array(this.starCount);
-    geometry.setAttribute('instanceOpacity', new THREE.InstancedBufferAttribute(this.opacityArray, 1));
+    geometry.setAttribute(
+      "instanceOpacity",
+      new THREE.InstancedBufferAttribute(this.opacityArray, 1),
+    );
 
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       blending: THREE.AdditiveBlending,
       side: THREE.DoubleSide,
       transparent: true,
-      depthWrite: false
+      depthWrite: false,
     });
 
     material.onBeforeCompile = (shader) => {
-      shader.vertexShader = `
+      shader.vertexShader =
+        `
         attribute float instanceOpacity;
         varying float vInstanceOpacity;
-      ` + shader.vertexShader.replace(
-        `void main() {`,
-        `void main() {\n  vInstanceOpacity = instanceOpacity;`
-      );
-      
-      shader.fragmentShader = `
+      ` +
+        shader.vertexShader.replace(
+          `void main() {`,
+          `void main() {\n  vInstanceOpacity = instanceOpacity;`,
+        );
+
+      shader.fragmentShader =
+        `
         varying float vInstanceOpacity;
-      ` + shader.fragmentShader.replace(
-        `vec4 diffuseColor = vec4( diffuse, opacity );`,
-        `vec4 diffuseColor = vec4( diffuse, opacity * vInstanceOpacity );`
-      );
+      ` +
+        shader.fragmentShader.replace(
+          `vec4 diffuseColor = vec4( diffuse, opacity );`,
+          `vec4 diffuseColor = vec4( diffuse, opacity * vInstanceOpacity );`,
+        );
     };
-    
-    this.instancedMesh = new THREE.InstancedMesh(geometry, material, this.starCount);
-    
+
+    this.instancedMesh = new THREE.InstancedMesh(
+      geometry,
+      material,
+      this.starCount,
+    );
+
     // Initialize all instances off-screen
     const dummy = new THREE.Object3D();
     dummy.position.set(0, 0, -100);
     dummy.scale.set(0.001, 0.001, 0.001); // Tiny instead of 0 to avoid degenerate matrix
     dummy.updateMatrix();
-    
+
     for (let i = 0; i < this.starCount; i++) {
       this.instancedMesh.setMatrixAt(i, dummy.matrix);
-      this.opacityArray[i] = 0; 
-      
+      this.opacityArray[i] = 0;
+
       this.stars.push({
         index: i,
         isActive: false,
@@ -209,41 +223,41 @@ class ShootingStar {
         startY: 0,
         endX: 0,
         endY: 0,
-        nextSpawnTime: Math.random() * 5 
+        nextSpawnTime: Math.random() * 5,
       });
     }
-    
+
     this.instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     this.scene.add(this.instancedMesh);
-    
+
     this.dummy = new THREE.Object3D();
   }
 
   update(time) {
     let needsUpdate = false;
-    
-    this.stars.forEach(star => {
+
+    this.stars.forEach((star) => {
       if (!star.isActive) {
         if (time > star.nextSpawnTime) {
           this.spawn(star);
         }
         return;
       }
-      
+
       star.progress += star.speed;
-      
+
       if (star.progress > 1) {
         star.isActive = false;
         this.opacityArray[star.index] = 0;
         needsUpdate = true;
-        
-        star.nextSpawnTime = time + Math.random() * 2.5 + 0.5; 
+
+        star.nextSpawnTime = time + Math.random() * 2.5 + 0.5;
         return;
       }
 
       const x = THREE.MathUtils.lerp(star.startX, star.endX, star.progress);
       const y = THREE.MathUtils.lerp(star.startY, star.endY, star.progress);
-      
+
       this.dummy.position.set(x, y, -100);
       this.dummy.rotation.z = star.angle;
       this.dummy.updateMatrix();
@@ -251,25 +265,25 @@ class ShootingStar {
 
       const fade = Math.sin(star.progress * Math.PI) * 0.8;
       this.opacityArray[star.index] = fade;
-      
+
       needsUpdate = true;
     });
-    
+
     if (needsUpdate) {
       this.instancedMesh.instanceMatrix.needsUpdate = true;
       this.instancedMesh.geometry.attributes.instanceOpacity.needsUpdate = true;
     }
   }
-  
+
   spawn(star) {
     star.isActive = true;
     star.progress = 0;
-    star.speed = Math.random() * 0.01 + 0.005; 
+    star.speed = Math.random() * 0.01 + 0.005;
 
-    star.startX = Math.random() * 600 - 100; 
-    star.startY = Math.random() * 300 + 100; 
-    
-    star.endX = star.startX - (Math.random() * 300 + 200); 
+    star.startX = Math.random() * 600 - 100;
+    star.startY = Math.random() * 300 + 100;
+
+    star.endX = star.startX - (Math.random() * 300 + 200);
     star.endY = star.startY - (Math.random() * 300 + 200);
 
     star.angle = Math.atan2(star.endY - star.startY, star.endX - star.startX);
@@ -282,13 +296,13 @@ class Nebula {
     this.scene = scene;
 
     const geometry = new THREE.PlaneGeometry(5000, 5000);
-    
+
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        color1: { value: new THREE.Color('#22143B') }, 
-        color2: { value: new THREE.Color('#6C4CA1') }, 
-        color3: { value: new THREE.Color('#B8AD9F') }  
+        color1: { value: new THREE.Color("#22143B") },
+        color2: { value: new THREE.Color("#6C4CA1") },
+        color3: { value: new THREE.Color("#B8AD9F") },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -345,11 +359,11 @@ class Nebula {
       `,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending
+      blending: THREE.AdditiveBlending,
     });
 
     this.mesh = new THREE.Mesh(geometry, this.material);
-    
+
     this.mesh.position.z = -500;
     this.scene.add(this.mesh);
   }
@@ -363,21 +377,21 @@ class Nebula {
 class HeroMoon {
   constructor(scene) {
     this.scene = scene;
-    this.domElement = document.querySelector('.moon');
+    this.domElement = document.querySelector(".moon");
 
     const geometry = new THREE.SphereGeometry(1, 32, 32);
 
     const textureLoader = new THREE.TextureLoader();
-    const moonTexture = textureLoader.load('assets/moon_1024.jpg');
+    const moonTexture = textureLoader.load("assets/moon_1024.jpg");
 
     this.material = new THREE.ShaderMaterial({
       uniforms: {
-        color1: { value: new THREE.Color('#FEF7FF') }, 
-        color2: { value: new THREE.Color('#9B89B3') }, 
+        color1: { value: new THREE.Color("#FEF7FF") },
+        color2: { value: new THREE.Color("#9B89B3") },
         fresnelBias: { value: 0.1 },
         fresnelScale: { value: 1.0 },
         fresnelPower: { value: 2.5 },
-        tDiffuse: { value: moonTexture }
+        tDiffuse: { value: moonTexture },
       },
       vertexShader: `
         varying vec3 vNormal;
@@ -416,7 +430,7 @@ class HeroMoon {
           
           gl_FragColor = vec4(finalColor, 1.0);
         }
-      `
+      `,
     });
 
     this.mesh = new THREE.Mesh(geometry, this.material);
@@ -446,23 +460,26 @@ class HeroMoon {
     const ndcX = (x / window.innerWidth) * 2 - 1;
     const ndcY = -(y / window.innerHeight) * 2 + 1;
 
-    const distance = -20; 
+    const distance = -20;
 
-    this._vec.set(ndcX, ndcY, 0.5)
+    this._vec
+      .set(ndcX, ndcY, 0.5)
       .unproject(camera)
       .sub(camera.position)
       .normalize();
-    
+
     const distanceToPlane = (distance - camera.position.z) / this._vec.z;
-    this._pos.copy(camera.position).add(this._vec.multiplyScalar(distanceToPlane));
-    
+    this._pos
+      .copy(camera.position)
+      .add(this._vec.multiplyScalar(distanceToPlane));
+
     this.mesh.position.copy(this._pos);
 
     const depth = camera.position.z - distance;
-    const vFov = camera.fov * Math.PI / 180;
+    const vFov = (camera.fov * Math.PI) / 180;
     const visibleHeight = 2 * Math.tan(vFov / 2) * depth;
     const visibleWidth = visibleHeight * camera.aspect;
-    
+
     const widthIn3D = (width / window.innerWidth) * visibleWidth;
 
     this.mesh.scale.setScalar(widthIn3D / 2);
@@ -474,7 +491,7 @@ class CursorTrail {
   constructor(scene, camera) {
     this.scene = scene;
     this.camera = camera;
-    
+
     this.trailLength = 25;
     this.mouseHistory = [];
     this._vec = new THREE.Vector3();
@@ -485,21 +502,24 @@ class CursorTrail {
       this._pool.push(new THREE.Vector3());
     }
     this._poolIndex = 0;
-    
+
     const geometry = new THREE.BufferGeometry();
     this.positions = new Float32Array(this.trailLength * 3);
     this.sizes = new Float32Array(this.trailLength);
 
     for (let i = 0; i < this.trailLength; i++) {
-      this.sizes[i] = (1 - (i / this.trailLength)) * 3; 
+      this.sizes[i] = (1 - i / this.trailLength) * 3;
     }
-    
-    geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
-    geometry.setAttribute('size', new THREE.BufferAttribute(this.sizes, 1));
-    
+
+    geometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(this.positions, 3),
+    );
+    geometry.setAttribute("size", new THREE.BufferAttribute(this.sizes, 1));
+
     this.material = new THREE.ShaderMaterial({
       uniforms: {
-        color: { value: new THREE.Color('#FEF7FF') } 
+        color: { value: new THREE.Color("#FEF7FF") },
       },
       vertexShader: `
         attribute float size;
@@ -521,35 +541,39 @@ class CursorTrail {
       `,
       transparent: true,
       blending: THREE.AdditiveBlending,
-      depthWrite: false
+      depthWrite: false,
     });
 
     this.points = new THREE.Points(geometry, this.material);
-    
+
     this.points.renderOrder = 999;
     this.scene.add(this.points);
-    
+
     this.target = new THREE.Vector3(0, 0, -10);
     this.isMoving = false;
-    
-    window.addEventListener('mousemove', (e) => {
+
+    window.addEventListener("mousemove", (e) => {
       this.isMoving = true;
       const ndcX = (e.clientX / window.innerWidth) * 2 - 1;
       const ndcY = -(e.clientY / window.innerHeight) * 2 + 1;
-      
-      this._vec.set(ndcX, ndcY, 0.5)
+
+      this._vec
+        .set(ndcX, ndcY, 0.5)
         .unproject(this.camera)
         .sub(this.camera.position)
         .normalize();
 
       const distance = (-10 - this.camera.position.z) / this._vec.z;
-      this.target.copy(this.camera.position).add(this._vec.multiplyScalar(distance));
+      this.target
+        .copy(this.camera.position)
+        .add(this._vec.multiplyScalar(distance));
     });
   }
 
   update() {
-    
-    const isMobile = window.innerWidth <= 768 || window.matchMedia("(pointer: coarse)").matches;
+    const isMobile =
+      window.innerWidth <= 768 ||
+      window.matchMedia("(pointer: coarse)").matches;
     if (isMobile) {
       this.points.visible = false;
       return;
@@ -558,9 +582,9 @@ class CursorTrail {
     }
 
     if (!this.isMoving && this.mouseHistory.length > 0) {
-       this.target.y -= 0.05;
+      this.target.y -= 0.05;
     }
-    this.isMoving = false; 
+    this.isMoving = false;
 
     // Reuse a pooled vector instead of cloning
     const pooled = this._pool[this._poolIndex];
@@ -586,7 +610,7 @@ class CursorTrail {
         this.positions[i * 3 + 2] = last.z;
       }
     }
-    
+
     this.points.geometry.attributes.position.needsUpdate = true;
   }
 }
@@ -597,11 +621,11 @@ class ClickStars {
     this.scene = scene;
     this.camera = camera;
     this.maxStars = 20; // max active clicks at once
-    
+
     const geometry = new THREE.BufferGeometry();
     this.positions = new Float32Array(this.maxStars * 3);
     this.birthTimes = new Float32Array(this.maxStars);
-    
+
     // Initialize offscreen / inactive
     for (let i = 0; i < this.maxStars; i++) {
       this.positions[i * 3] = 0;
@@ -609,14 +633,20 @@ class ClickStars {
       this.positions[i * 3 + 2] = -9999;
       this.birthTimes[i] = -9999;
     }
-    
-    geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
-    geometry.setAttribute('birthTime', new THREE.BufferAttribute(this.birthTimes, 1));
-    
+
+    geometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(this.positions, 3),
+    );
+    geometry.setAttribute(
+      "birthTime",
+      new THREE.BufferAttribute(this.birthTimes, 1),
+    );
+
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        color: { value: new THREE.Color('#FFD37E') } // Gold color for click star
+        color: { value: new THREE.Color("#FFD37E") }, // Gold color for click star
       },
       vertexShader: `
         attribute float birthTime;
@@ -668,46 +698,49 @@ class ClickStars {
       `,
       transparent: true,
       blending: THREE.AdditiveBlending,
-      depthWrite: false
+      depthWrite: false,
     });
 
     this.points = new THREE.Points(geometry, this.material);
     this.points.renderOrder = 999; // Render on top
     this.points.frustumCulled = false; // Prevent culling when points update
     this.scene.add(this.points);
-    
+
     this._vec = new THREE.Vector3();
     this.currentIndex = 0;
-    
-    window.addEventListener('click', (e) => {
+
+    window.addEventListener("click", (e) => {
       // Desktop only check (removed pointer:coarse because it blocks touch laptops)
       if (window.innerWidth <= 768) return;
       this.spawnStar(e.clientX, e.clientY);
     });
   }
-  
+
   spawnStar(clientX, clientY) {
     const ndcX = (clientX / window.innerWidth) * 2 - 1;
     const ndcY = -(clientY / window.innerHeight) * 2 + 1;
-    
-    this._vec.set(ndcX, ndcY, 0.5)
+
+    this._vec
+      .set(ndcX, ndcY, 0.5)
       .unproject(this.camera)
       .sub(this.camera.position)
       .normalize();
 
     // Place it a bit in front of the camera, slightly further back than cursor trail (-10)
     const distance = (-25 - this.camera.position.z) / this._vec.z;
-    const pos = this.camera.position.clone().add(this._vec.multiplyScalar(distance));
-    
+    const pos = this.camera.position
+      .clone()
+      .add(this._vec.multiplyScalar(distance));
+
     const i = this.currentIndex;
     this.positions[i * 3] = pos.x;
     this.positions[i * 3 + 1] = pos.y;
     this.positions[i * 3 + 2] = pos.z;
     this.birthTimes[i] = this.material.uniforms.time.value; // set birth time to current time
-    
+
     this.points.geometry.attributes.position.needsUpdate = true;
     this.points.geometry.attributes.birthTime.needsUpdate = true;
-    
+
     this.currentIndex = (this.currentIndex + 1) % this.maxStars;
   }
 
@@ -719,34 +752,43 @@ class ClickStars {
 // --- main.js ---
 class CosmicApp {
   constructor() {
-    console.log('🌟 [CosmicApp] Initializing... Three.js version:', THREE.REVISION);
-    this.canvas = document.getElementById('webgl-canvas');
-    console.log('🌟 [CosmicApp] Canvas found:', !!this.canvas);
+    if (isBot) {
+      console.log("[CosmicApp] Bot detected. Completely bypassing Three.js for performance.");
+      return;
+    }
+    console.log(
+      "🌟 [CosmicApp] Initializing... Three.js version:",
+      THREE.REVISION,
+    );
+    this.canvas = document.getElementById("webgl-canvas");
+    console.log("🌟 [CosmicApp] Canvas found:", !!this.canvas);
     if (!this.canvas) return;
 
-    this.canvas.style.cssText = 
-      'position:fixed;top:0;left:0;width:100%;height:100vh;' +
-      'display:block;z-index:-1;pointer-events:none;';
+    this.canvas.style.cssText =
+      "position:fixed;top:0;left:0;width:100%;height:100vh;" +
+      "display:block;z-index:-1;pointer-events:none;";
 
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(
-      45, 
-      window.innerWidth / window.innerHeight, 
-      0.1, 
-      5000
+      45,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      5000,
     );
-    this.camera.position.z = 100; 
+    this.camera.position.z = 100;
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      alpha: true,      
+      alpha: true,
       antialias: false,
-      powerPreference: "high-performance"
+      powerPreference: "high-performance",
     });
-    
+
     const isMobile = window.innerWidth <= 768;
-    this.renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2)); 
+    this.renderer.setPixelRatio(
+      isMobile ? 1 : Math.min(window.devicePixelRatio, 2),
+    );
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     this.modules = [];
@@ -754,24 +796,30 @@ class CosmicApp {
     this.scrollY = window.scrollY;
     this.targetCameraY = 0;
     this.lastFrameTime = 0;
-    
-    window.addEventListener('scroll', () => {
-      this.scrollY = window.scrollY;
-      this.targetCameraY = -this.scrollY * 0.05; 
-    }, { passive: true });
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        this.scrollY = window.scrollY;
+        this.targetCameraY = -this.scrollY * 0.05;
+      },
+      { passive: true },
+    );
 
     this._boundResize = this.onWindowResize.bind(this);
-    window.addEventListener('resize', this._boundResize);
+    window.addEventListener("resize", this._boundResize);
 
     this._boundAnimate = this.animate.bind(this);
 
-    this._prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this._prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    );
     this._reducedMotion = this._prefersReducedMotion.matches;
-    this._prefersReducedMotion.addEventListener('change', (e) => {
+    this._prefersReducedMotion.addEventListener("change", (e) => {
       this._reducedMotion = e.matches;
     });
-    
-    document.addEventListener('visibilitychange', () => {
+
+    document.addEventListener("visibilitychange", () => {
       if (!this.clock) return;
       if (document.hidden) {
         this.clock.stop();
@@ -786,28 +834,60 @@ class CosmicApp {
   }
 
   async initModulesAsync() {
-    if (isBot) {
-      console.log('[CosmicApp] Bot detected. Bypassing Three.js initialization for performance.');
-      return;
-    }
-
     const yieldIfPossible = async () => {
-      if ('scheduler' in window && 'yield' in scheduler) {
+      if ("scheduler" in window && "yield" in scheduler) {
         await scheduler.yield();
       } else {
-        await new Promise(r => setTimeout(r, 0));
+        await new Promise((r) => setTimeout(r, 0));
       }
     };
 
-    try { this.starfield = new Starfield(this.scene); await yieldIfPossible(); } catch(e) { console.error('Starfield error', e); }
-    try { this.heroMoon = new HeroMoon(this.scene); await yieldIfPossible(); } catch(e) { console.error('HeroMoon error', e); }
-    try { this.nebula = new Nebula(this.scene); await yieldIfPossible(); } catch(e) { console.error('Nebula error', e); }
-    try { this.sparkles = new Sparkles(this.scene); await yieldIfPossible(); } catch(e) { console.error('Sparkles error', e); }
-    try { this.shootingStar = new ShootingStar(this.scene); await yieldIfPossible(); } catch(e) { console.error('ShootingStar error', e); }
-    try { this.cursorTrail = new CursorTrail(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('CursorTrail error', e); }
-    try { this.clickStars = new ClickStars(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('ClickStars error', e); }
+    try {
+      this.starfield = new Starfield(this.scene);
+      await yieldIfPossible();
+    } catch (e) {
+      console.error("Starfield error", e);
+    }
+    try {
+      this.heroMoon = new HeroMoon(this.scene);
+      await yieldIfPossible();
+    } catch (e) {
+      console.error("HeroMoon error", e);
+    }
+    try {
+      this.nebula = new Nebula(this.scene);
+      await yieldIfPossible();
+    } catch (e) {
+      console.error("Nebula error", e);
+    }
+    try {
+      this.sparkles = new Sparkles(this.scene);
+      await yieldIfPossible();
+    } catch (e) {
+      console.error("Sparkles error", e);
+    }
+    try {
+      this.shootingStar = new ShootingStar(this.scene);
+      await yieldIfPossible();
+    } catch (e) {
+      console.error("ShootingStar error", e);
+    }
+    try {
+      this.cursorTrail = new CursorTrail(this.scene, this.camera);
+      await yieldIfPossible();
+    } catch (e) {
+      console.error("CursorTrail error", e);
+    }
+    try {
+      this.clickStars = new ClickStars(this.scene, this.camera);
+      await yieldIfPossible();
+    } catch (e) {
+      console.error("ClickStars error", e);
+    }
 
-    console.log('[CosmicApp] All modules initialized, starting animation loop.');
+    console.log(
+      "[CosmicApp] All modules initialized, starting animation loop.",
+    );
     this.clock = new THREE.Clock();
     this.animate();
   }
@@ -820,18 +900,19 @@ class CosmicApp {
 
   animate(timestamp = 0) {
     if (document.hidden) return;
-    
+
     this.rafId = requestAnimationFrame(this._boundAnimate);
 
     const elapsed = timestamp - this.lastFrameTime;
     const isMobile = window.innerWidth <= 768;
     const frameCap = isMobile ? 50 : 33.3; // 20fps on mobile, 30fps on desktop
-    if (elapsed < frameCap) return; 
+    if (elapsed < frameCap) return;
     this.lastFrameTime = timestamp;
 
     const time = this.clock.getElapsedTime();
 
-    this.camera.position.y += (this.targetCameraY - this.camera.position.y) * 0.05;
+    this.camera.position.y +=
+      (this.targetCameraY - this.camera.position.y) * 0.05;
     this.camera.updateMatrixWorld();
 
     if (this.starfield) this.starfield.update(time);
@@ -851,29 +932,29 @@ let appStarted = false;
 const startApp = () => {
   if (appStarted) return;
   appStarted = true;
-  
-  const canvas = document.getElementById('webgl-canvas');
+
+  const canvas = document.getElementById("webgl-canvas");
   if (canvas) {
-    canvas.style.opacity = '0';
-    canvas.style.transition = 'opacity 2s ease-in-out';
+    canvas.style.opacity = "0";
+    canvas.style.transition = "opacity 2s ease-in-out";
   }
-  
+
   new CosmicApp();
-  
+
   if (canvas) {
     setTimeout(() => {
-      canvas.style.opacity = '1';
+      canvas.style.opacity = "1";
     }, 100);
   }
 };
 
-const interactions = ['scroll', 'mousemove', 'touchstart', 'keydown', 'click'];
-interactions.forEach(e => {
+const interactions = ["scroll", "mousemove", "touchstart", "keydown", "click"];
+interactions.forEach((e) => {
   window.addEventListener(e, startApp, { once: true, passive: true });
 });
 
-if (document.readyState === 'complete') {
+if (document.readyState === "complete") {
   setTimeout(startApp, 100);
 } else {
-  window.addEventListener('load', () => setTimeout(startApp, 100));
+  window.addEventListener("load", () => setTimeout(startApp, 100));
 }
