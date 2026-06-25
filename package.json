@@ -1,16 +1,5 @@
 {
-  "name": "the-luna",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
-  },
   "dependencies": {
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2"
-  },
-  "devDependencies": {
-    "sharp": "^0.35.2"
+    "three": "^0.160.0"
   }
 }
