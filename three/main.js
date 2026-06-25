@@ -438,17 +438,40 @@ class HeroMoon {
 
     this._vec = new THREE.Vector3();
     this._pos = new THREE.Vector3();
+    
+    // Cache the rect to avoid forced reflows in the render loop
+    this.cachedRect = { top: 0, left: 0, width: 0, height: 0, bottom: 0 };
+    this.updateRect = () => {
+      if (!this.domElement) return;
+      const rect = this.domElement.getBoundingClientRect();
+      this.cachedRect.top = rect.top + window.scrollY;
+      this.cachedRect.left = rect.left + window.scrollX;
+      this.cachedRect.width = rect.width;
+      this.cachedRect.height = rect.height;
+    };
+    this.updateRect();
+    window.addEventListener('resize', this.updateRect, { passive: true });
   }
 
-  update(time, camera) {
+  update(time, camera, scrollY = window.scrollY) {
     if (!this.domElement) return;
-    const rect = this.domElement.getBoundingClientRect();
-    if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+    
+    const top = this.cachedRect.top - scrollY;
+    const bottom = top + this.cachedRect.height;
+    
+    if (bottom < 0 || top > window.innerHeight) return;
 
     this.mesh.rotation.y += 0.002;
 
     if (camera) {
-      this.matchDOMPosition(camera, rect);
+      // Create a mock rect object for matchDOMPosition
+      const currentRect = {
+        left: this.cachedRect.left,
+        top: top,
+        width: this.cachedRect.width,
+        height: this.cachedRect.height
+      };
+      this.matchDOMPosition(camera, currentRect);
     }
   }
 
@@ -916,7 +939,7 @@ class CosmicApp {
     this.camera.updateMatrixWorld();
 
     if (this.starfield) this.starfield.update(time);
-    if (this.heroMoon) this.heroMoon.update(time, this.camera);
+    if (this.heroMoon) this.heroMoon.update(time, this.camera, this.scrollY);
     if (this.nebula) this.nebula.update(time);
     if (this.sparkles) this.sparkles.update(time);
     if (this.shootingStar) this.shootingStar.update(time);
