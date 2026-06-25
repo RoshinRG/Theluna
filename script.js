@@ -73,12 +73,16 @@
     const o = document.querySelectorAll(".spa-section");
     function s() {
       const e = window.location.hash.substring(1) || "home";
-      o.forEach((e) => {
-        requestAnimationFrame(() => e.classList.remove("spa-visible"));
+      o.forEach((section) => {
+        if (section.id !== e) {
+          requestAnimationFrame(() => section.classList.remove("spa-visible"));
+        }
       });
       const s = document.getElementById(e);
       if (s) {
-        requestAnimationFrame(() => s.classList.add("spa-visible"));
+        if (!s.classList.contains("spa-visible")) {
+          requestAnimationFrame(() => s.classList.add("spa-visible"));
+        }
         const t = e.charAt(0).toUpperCase() + e.slice(1);
         document.title =
           "home" === e
