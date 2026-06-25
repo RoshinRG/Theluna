@@ -3,7 +3,7 @@
   font-family: 'Cormorant Garamond';
   font-style: normal;
   font-weight: 400;
-  font-display: optional;
+  font-display: block;
   src: url('assets/fonts/cormorant-garamond-regular.woff2') format('woff2');
 }
 
@@ -11,7 +11,7 @@
   font-family: 'Cormorant Garamond';
   font-style: normal;
   font-weight: 600;
-  font-display: optional;
+  font-display: block;
   src: url('assets/fonts/cormorant-garamond-bold.woff2') format('woff2');
 }
 
@@ -19,7 +19,7 @@
   font-family: 'Cormorant Garamond';
   font-style: normal;
   font-weight: 700;
-  font-display: optional;
+  font-display: block;
   src: url('assets/fonts/cormorant-garamond-bold.woff2') format('woff2');
 }
 
@@ -27,7 +27,7 @@
   font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
-  font-display: optional;
+  font-display: block;
   src: url('assets/fonts/inter-regular.woff2') format('woff2');
 }
 
@@ -35,7 +35,7 @@
   font-family: 'Inter';
   font-style: normal;
   font-weight: 300;
-  font-display: optional;
+  font-display: block;
   src: url('assets/fonts/inter-regular.woff2') format('woff2');
 }
 
