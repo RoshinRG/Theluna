@@ -981,18 +981,19 @@ const startApp = () => {
   if (appStarted) return;
   appStarted = true;
 
+  new CosmicApp();
+
   const canvas = document.getElementById("webgl-canvas");
   if (canvas) {
     canvas.style.opacity = "0";
     canvas.style.transition = "opacity 2s ease-in-out";
-  }
-
-  new CosmicApp();
-
-  if (canvas) {
+    
+    // Trigger reflow
+    void canvas.offsetHeight;
+    
     setTimeout(() => {
       canvas.style.opacity = "1";
-    }, 100);
+    }, 50);
   }
 };
 
