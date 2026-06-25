@@ -154,61 +154,54 @@
           (u.scrollTop = u.scrollHeight));
       }
       (r.addEventListener("click", g), l.addEventListener("click", g));
-
+      const p = [
+        {
+          role: "system",
+          content:
+            "You are ASTRA, a friendly and magical AI assistant for G Daffini Shiyalin (Luna), a cosmic poet and storyteller. Luna has published poetry like 'Whispers of Earth', 'She Became In Silence', and is writing 'The Hidden Bloodline' on Wattpad. Keep answers very brief (1-3 sentences), poetic, and cosmic. Guide users to her books, poetry, or contact sections. Do not use complex markdown formatting.",
+        },
+      ];
       d.addEventListener("submit", async (e) => {
         e.preventDefault();
         if (isAstraSending) return;
         const t = m.value.trim();
         if (!t) return;
         isAstraSending = true;
-        
-        // Show user message immediately
-        y(t, !0);
-        m.value = "";
-        
-        // Show typing indicator
+        (y(t, !0), (m.value = ""));
         const n = document.getElementById("astra-typing-indicator");
-        if (n) {
-          n.style.display = "flex";
-          u.scrollTop = u.scrollHeight;
-        }
-
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 15000);
-          
-          const response = await fetch("/api/astra", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({ message: t }),
-            signal: controller.signal,
-          });
-          
-          clearTimeout(timeoutId);
-          
-          if (!response.ok) {
-            if (response.status === 429) throw new Error("RateLimit");
-            throw new Error("API response was not ok");
+        n && ((n.style.display = "flex"), (u.scrollTop = u.scrollHeight));
+        const o = await (async function (e) {
+          (p.push({ role: "user", content: e }),
+            p.length > 11 && p.splice(1, p.length - 11));
+          try {
+            const e = new AbortController(),
+              t = setTimeout(() => e.abort(), 15e3),
+              n = await fetch("/api/astra", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
+                body: JSON.stringify({ messages: p }),
+                signal: e.signal,
+              });
+            if (!n.ok) {
+              throw new Error("API response was not ok");
+            }
+            
+            const data = await n.json();
+            const o = data.reply;
+            
+            p.push({ role: "assistant", content: o });
+            return o;
+          } catch (e) {
+            console.error("ASTRA API Error:", e);
+            p.pop();
+            return "The cosmic connection is weak right now... I'm having trouble thinking. Please try again later!";
           }
-          
-          const data = await response.json();
-          y(data.reply, !1);
-        } catch (error) {
-          console.error("ASTRA API Error:", error);
-          let errorMsg = "The cosmic connection is weak right now... Please try again later!";
-          if (error.name === "AbortError") {
-            errorMsg = "The stars are taking too long to align... The connection timed out. Please try again.";
-          } else if (error.message === "RateLimit") {
-            errorMsg = "I'm feeling a little overwhelmed by the cosmic energy! Please wait a moment before asking again.";
-          }
-          y(errorMsg, !1);
-        } finally {
-          if (n) n.style.display = "none";
-          isAstraSending = false;
-        }
+        })(t);
+        (n && (n.style.display = "none"), y(o, !1));
+        isAstraSending = false;
       });
     }
     document.querySelectorAll(".coming-soon-link").forEach((e) => {

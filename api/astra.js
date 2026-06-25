@@ -1,3 +1,5 @@
+
+
 const rateLimitMap = new Map();
 const RATE_LIMIT_WINDOW_MS = 60000; 
 const MAX_REQUESTS_PER_WINDOW = 5;
@@ -34,17 +36,10 @@ export default async function handler(req, res) {
     }
   }
 
-  const { message } = req.body;
-  if (!message || typeof message !== 'string') {
-    return res.status(400).json({ error: 'Invalid or missing message payload' });
+  const { messages } = req.body;
+  if (!messages || !Array.isArray(messages)) {
+    return res.status(400).json({ error: 'Invalid or missing messages payload' });
   }
-
-  const systemPrompt = "You are ASTRA, Luna's cosmic writing assistant. You are warm, mystical, and knowledgeable about books, poetry, and creative writing. Keep responses concise (2-4 sentences). Use subtle cosmic metaphors.";
-
-  const messages = [
-    { role: "system", content: systemPrompt },
-    { role: "user", content: message }
-  ];
 
   try {
     const apiKey = process.env.NVIDIA_API_KEY;
@@ -63,7 +58,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: "google/diffusiongemma-26b-a4b-it",
         messages: messages,
-        max_tokens: 4096,
+        max_tokens: 16384,
         temperature: 1.00,
         top_p: 0.95,
         stream: false,
@@ -74,19 +69,19 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const errorData = await response.text();
       console.error("NVIDIA API Error:", errorData);
-      return res.status(response.status).json({ error: 'Error from NVIDIA API' });
+      return res.status(200).json({ reply: 'The cosmic connection is weak right now... Please try again later!' });
     }
 
     const data = await response.json();
-    let reply = data.choices[0].message.content;
+    let replyText = data.choices[0].message.content;
     
-    // Strip out <think> tags if the model returned them
-    reply = reply.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
-    reply = reply.replace(/<think>[\s\S]*/gi, "").trim();
+    // Clean up <think> tags from model output
+    replyText = replyText.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+    replyText = replyText.replace(/<think>[\s\S]*/gi, "").trim();
 
-    return res.status(200).json({ reply: reply });
+    return res.status(200).json({ reply: replyText });
   } catch (error) {
     console.error("Serverless Function Error:", error);
-    return res.status(500).json({ reply: "The cosmic connection is weak right now... Please try again later!" });
+    return res.status(200).json({ reply: 'The cosmic connection is weak right now... Please try again later!' });
   }
 }
