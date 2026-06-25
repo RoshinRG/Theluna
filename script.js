@@ -79,14 +79,16 @@
       (a &&
         (function (e) {
           if (!e) return;
-          const o = e.getBoundingClientRect(),
-            s = t.getBoundingClientRect(),
-            a = o.left - s.left,
-            i = o.width;
-          (n.forEach((e) => e.classList.remove("active")),
-            e.classList.add("active"));
-          (t.style.setProperty("--ambience-x", `${a}px`),
-            t.style.setProperty("--ambience-width", `${i}px`));
+          requestAnimationFrame(() => {
+            const o = e.getBoundingClientRect(),
+              s = t.getBoundingClientRect(),
+              a = o.left - s.left,
+              i = o.width;
+            n.forEach((e) => e.classList.remove("active"));
+            e.classList.add("active");
+            t.style.setProperty("--ambience-x", `${a}px`);
+            t.style.setProperty("--ambience-width", `${i}px`);
+          });
         })(a),
         window.scrollTo(0, 0));
     }
