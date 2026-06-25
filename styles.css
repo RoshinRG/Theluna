@@ -665,6 +665,10 @@ main {
   flex: 1;
   max-width: 600px;
   z-index: 2;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 .hero-content .body-text {
