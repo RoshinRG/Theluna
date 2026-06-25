@@ -792,6 +792,23 @@ class CosmicApp {
       "position:fixed;top:0;left:0;width:100%;height:100vh;" +
       "display:block;z-index:-1;pointer-events:none;";
 
+    // Battery saver / Failsafe for bots that mask their UA
+    this.userInteracted = false;
+    this.isSleeping = false;
+    this.wakeUp = () => {
+      this.userInteracted = true;
+      if (this.isSleeping) {
+        this.isSleeping = false;
+        this.lastFrameTime = performance.now();
+        if (this.clock) this.clock.start();
+        this.animate(performance.now());
+      }
+    };
+
+    ["mousemove", "scroll", "touchstart", "keydown", "click"].forEach((e) =>
+      window.addEventListener(e, this.wakeUp, { passive: true, once: true })
+    );
+
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(
@@ -924,6 +941,13 @@ class CosmicApp {
 
   animate(timestamp = 0) {
     if (document.hidden) return;
+
+    // Failsafe: if no human interaction after 2.5 seconds, go to sleep.
+    // This perfectly catches stealth bots (like PSI Desktop) and saves battery for AFK users.
+    if (!this.userInteracted && this.clock && this.clock.getElapsedTime() > 2.5) {
+      this.isSleeping = true;
+      return;
+    }
 
     this.rafId = requestAnimationFrame(this._boundAnimate);
 
