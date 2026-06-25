@@ -722,6 +722,10 @@ class CosmicApp {
     console.log('🌟 [CosmicApp] Canvas found:', !!this.canvas);
     if (!this.canvas) return;
 
+    this.canvas.style.cssText = 
+      'position:fixed;top:0;left:0;width:100%;height:100vh;' +
+      'display:block;z-index:-1;pointer-events:none;';
+
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(
@@ -745,6 +749,7 @@ class CosmicApp {
 
     this.scrollY = window.scrollY;
     this.targetCameraY = 0;
+    this.lastFrameTime = 0;
     
     window.addEventListener('scroll', () => {
       this.scrollY = window.scrollY;
@@ -766,6 +771,7 @@ class CosmicApp {
       if (!this.clock) return;
       if (document.hidden) {
         this.clock.stop();
+        if (this.rafId) cancelAnimationFrame(this.rafId);
       } else {
         this.clock.start();
         this.animate();
@@ -776,15 +782,21 @@ class CosmicApp {
   }
 
   async initModulesAsync() {
-    const delay = () => new Promise(res => setTimeout(res, 30));
+    const yieldIfPossible = async () => {
+      if ('scheduler' in window && 'yield' in scheduler) {
+        await scheduler.yield();
+      } else {
+        await new Promise(r => setTimeout(r, 0));
+      }
+    };
 
-    try { this.starfield = new Starfield(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('Starfield error', e); }
-    try { this.heroMoon = new HeroMoon(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('HeroMoon error', e); }
-    try { this.nebula = new Nebula(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('Nebula error', e); }
-    try { this.sparkles = new Sparkles(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('Sparkles error', e); }
-    try { this.shootingStar = new ShootingStar(this.scene); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('ShootingStar error', e); }
-    try { this.cursorTrail = new CursorTrail(this.scene, this.camera); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('CursorTrail error', e); }
-    try { this.clickStars = new ClickStars(this.scene, this.camera); this.renderer.render(this.scene, this.camera); await delay(); } catch(e) { console.error('ClickStars error', e); }
+    try { this.starfield = new Starfield(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('Starfield error', e); }
+    try { this.heroMoon = new HeroMoon(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('HeroMoon error', e); }
+    try { this.nebula = new Nebula(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('Nebula error', e); }
+    try { this.sparkles = new Sparkles(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('Sparkles error', e); }
+    try { this.shootingStar = new ShootingStar(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('ShootingStar error', e); }
+    try { this.cursorTrail = new CursorTrail(this.scene, this.camera); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('CursorTrail error', e); }
+    try { this.clickStars = new ClickStars(this.scene, this.camera); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('ClickStars error', e); }
 
     console.log('[CosmicApp] All modules initialized, starting animation loop.');
     this.clock = new THREE.Clock();
@@ -797,14 +809,18 @@ class CosmicApp {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  animate() {
+  animate(timestamp = 0) {
     if (document.hidden) return;
     
     // We won't stop the animation loop entirely for reduced motion, 
     // otherwise textures won't load and the screen stays blank.
     // If you want to support reduced motion, you could slow down the time multiplier here instead.
 
-    requestAnimationFrame(this._boundAnimate);
+    this.rafId = requestAnimationFrame(this._boundAnimate);
+
+    const elapsed = timestamp - this.lastFrameTime;
+    if (elapsed < 33.3) return; // 30fps cap
+    this.lastFrameTime = timestamp;
 
     const time = this.clock.getElapsedTime();
 

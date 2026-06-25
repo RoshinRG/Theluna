@@ -248,14 +248,14 @@ body.hovering .cursor-glow {
   background-color: rgba(132, 94, 194, 0.2);
 }
 
-#webgl-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw !important;
+canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
   height: 100vh !important;
   display: block;
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
 }
 
