@@ -792,13 +792,13 @@ class CosmicApp {
       }
     };
 
-    try { this.starfield = new Starfield(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('Starfield error', e); }
-    try { this.heroMoon = new HeroMoon(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('HeroMoon error', e); }
-    try { this.nebula = new Nebula(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('Nebula error', e); }
-    try { this.sparkles = new Sparkles(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('Sparkles error', e); }
-    try { this.shootingStar = new ShootingStar(this.scene); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('ShootingStar error', e); }
-    try { this.cursorTrail = new CursorTrail(this.scene, this.camera); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('CursorTrail error', e); }
-    try { this.clickStars = new ClickStars(this.scene, this.camera); this.renderer.render(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('ClickStars error', e); }
+    try { this.starfield = new Starfield(this.scene); await yieldIfPossible(); } catch(e) { console.error('Starfield error', e); }
+    try { this.heroMoon = new HeroMoon(this.scene); await yieldIfPossible(); } catch(e) { console.error('HeroMoon error', e); }
+    try { this.nebula = new Nebula(this.scene); await yieldIfPossible(); } catch(e) { console.error('Nebula error', e); }
+    try { this.sparkles = new Sparkles(this.scene); await yieldIfPossible(); } catch(e) { console.error('Sparkles error', e); }
+    try { this.shootingStar = new ShootingStar(this.scene); await yieldIfPossible(); } catch(e) { console.error('ShootingStar error', e); }
+    try { this.cursorTrail = new CursorTrail(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('CursorTrail error', e); }
+    try { this.clickStars = new ClickStars(this.scene, this.camera); await yieldIfPossible(); } catch(e) { console.error('ClickStars error', e); }
 
     console.log('[CosmicApp] All modules initialized, starting animation loop.');
     this.clock = new THREE.Clock();
@@ -821,7 +821,9 @@ class CosmicApp {
     this.rafId = requestAnimationFrame(this._boundAnimate);
 
     const elapsed = timestamp - this.lastFrameTime;
-    if (elapsed < 33.3) return; // 30fps cap
+    const isMobile = window.innerWidth <= 768;
+    const frameCap = isMobile ? 50 : 33.3; // 20fps on mobile, 30fps on desktop
+    if (elapsed < frameCap) return; 
     this.lastFrameTime = timestamp;
 
     const time = this.clock.getElapsedTime();
