@@ -15,6 +15,15 @@ const PORT = process.env.PORT || 3000;
 // Enable JSON body parsing for API routes
 app.use(express.json());
 
+// Block access to sensitive files
+app.use((req, res, next) => {
+  const url = req.url.split('?')[0];
+  if (url.includes('.env') || url.endsWith('.cjs') || url.endsWith('server.js') || url.includes('/api/')) {
+    return res.status(403).send('Forbidden');
+  }
+  next();
+});
+
 // Serve static files from the current directory
 app.use(express.static(__dirname));
 

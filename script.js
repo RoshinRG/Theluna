@@ -7,45 +7,47 @@
         ? (n += 8 * Math.random() + 2)
         : n < 95 && (n += 0.5 * Math.random()),
         (n = Math.min(n, 95)),
-        e && (e.style.width = n + "%");
+        e && requestAnimationFrame(() => e.style.width = n + "%");
     }, 50);
   
-    const hideLoader = () => {
+    
+    const removeLoader = () => {
       clearInterval(o);
-      if (e) e.style.width = "100%";
-      setTimeout(() => {
-        if (t) t.classList.add("hidden");
-        setTimeout(() => {
-          if (t) t.remove();
-          
-          // Defer heavy Three.js background initialization until user interaction
-          const loadThreeJS = () => {
-            if (window.threejsLoaded) return;
-            window.threejsLoaded = true;
-            import('./three/main.js').catch(console.error);
-          };
-
-          const interactions = ["mousemove", "scroll", "touchstart", "keydown", "click"];
-          interactions.forEach((e) => {
-            window.addEventListener(e, loadThreeJS, { once: true, passive: true });
-          });
-
-          // Failsafe: load it after 8 seconds if they haven't interacted
-          // (Lighthouse finishes its test before 8 seconds)
-          setTimeout(loadThreeJS, 8000);
-        }, 500);
-      }, 200);
+      const content = document.querySelector('.loading-content');
+      if (content) {
+        content.style.opacity = '0';
+        content.style.transition = 'opacity 0.3s';
+        setTimeout(() => content.remove(), 300);
+      }
+      const t = document.getElementById('loading-screen');
+      if (t) {
+        t.style.opacity = '0';
+        t.style.transition = 'opacity 0.3s';
+        setTimeout(() => t.remove(), 300);
+      }
+      
+      const loadThreeJS = () => {
+        if (window.threejsLoaded) return;
+        window.threejsLoaded = true;
+        import('./three/main.js').catch(console.error);
+      };
+      const interactions = ['mousemove', 'scroll', 'touchstart', 'keydown', 'click'];
+      interactions.forEach((ev) => {
+        window.addEventListener(ev, loadThreeJS, { once: true, passive: true });
+      });
+      setTimeout(loadThreeJS, 8000);
     };
   
-    window.addEventListener("load", hideLoader);
-    setTimeout(hideLoader, 1500); // Fallback max loader time
+    window.addEventListener('load', removeLoader, { passive: true });
+    setTimeout(removeLoader, 500); // Fallback max loader time
+
   })(),
   document.addEventListener("DOMContentLoaded", () => {
     const e = document.documentElement;
     document.addEventListener("mousemove", (t) => {
       (e.style.setProperty("--cursor-x", `${t.clientX}px`),
         e.style.setProperty("--cursor-y", `${t.clientY}px`));
-    });
+    }, { passive: true });
     document
       .querySelectorAll("a, button, input, textarea, .glass-card")
       .forEach((e) => {
@@ -67,16 +69,16 @@
           o = clientX - n.left;
         t.style.setProperty("--spotlight-x", `${o}px`);
       });
-    });
+    }, { passive: true });
     const o = document.querySelectorAll(".spa-section");
     function s() {
       const e = window.location.hash.substring(1) || "home";
       o.forEach((e) => {
-        e.classList.remove("spa-visible");
+        requestAnimationFrame(() => e.classList.remove("spa-visible"));
       });
       const s = document.getElementById(e);
       if (s) {
-        s.classList.add("spa-visible");
+        requestAnimationFrame(() => s.classList.add("spa-visible"));
         const t = e.charAt(0).toUpperCase() + e.slice(1);
         document.title =
           "home" === e
@@ -173,7 +175,7 @@
         isAstraSending = true;
         (y(t, !0), (m.value = ""));
         const n = document.getElementById("astra-typing-indicator");
-        n && ((n.style.display = "flex"), (u.scrollTop = u.scrollHeight));
+        if (n) { requestAnimationFrame(() => { n.style.display = "flex"; requestAnimationFrame(() => u.scrollTop = u.scrollHeight); }); }
         const o = await (async function (e) {
           (p.push({ role: "user", content: e }),
             p.length > 11 && p.splice(1, p.length - 11));
