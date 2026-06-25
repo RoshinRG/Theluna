@@ -39,7 +39,7 @@
     };
   
     window.addEventListener('load', removeLoader, { passive: true });
-    setTimeout(removeLoader, 500); // Fallback max loader time
+    setTimeout(removeLoader, 3000); // Fallback max loader time
 
   })(),
   document.addEventListener("DOMContentLoaded", () => {

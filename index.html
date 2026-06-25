@@ -49,7 +49,23 @@
   .loading-bar-container { width: 200px; height: 3px; background: rgba(254, 247, 255, 0.15); border-radius: 4px; overflow: hidden; }
   .loading-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #845EC2, #FEF7FF); border-radius: 4px; transition: width 0.3s ease; }
   .loading-subtitle { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: rgba(254, 247, 255, 0.5); letter-spacing: 0.08em; }
+  html.loading-fonts main { display: none !important; }
   </style>
+  <script>
+    document.documentElement.classList.add('js-enabled', 'loading-fonts');
+    if ("fonts" in document) {
+      Promise.all([
+        document.fonts.load("400 1em 'Inter'"),
+        document.fonts.load("600 1em 'Cormorant Garamond'")
+      ]).then(() => {
+        document.documentElement.classList.remove('loading-fonts');
+      }).catch(() => {
+        document.documentElement.classList.remove('loading-fonts');
+      });
+    } else {
+      document.documentElement.classList.remove('loading-fonts');
+    }
+  </script>
   <link rel="stylesheet" href="/styles.css" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="/styles.css"></noscript>
 
