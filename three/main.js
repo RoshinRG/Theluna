@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 const isBot =
+  navigator.webdriver ||
   /Lighthouse|PTST|Speed Insights|Chrome-Lighthouse|Googlebot|HeadlessChrome/i.test(
     navigator.userAgent,
   );
