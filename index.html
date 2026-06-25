@@ -491,93 +491,32 @@
   --cursor-y: 50vh;
 }
 
-.loading-screen {
+#lcp-placeholder {
   position: fixed;
   inset: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #1a1025 0%, #845EC2 50%, #9B89B3 100%);
-  transition: opacity 0.8s ease, visibility 0.8s ease;
-}
-
-.loading-screen.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.loading-content {
-  text-align: center;
+  z-index: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.2rem;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, #845EC2 0%, #1a1025 100%);
+  transition: opacity 0.8s ease, visibility 0.8s ease;
 }
 
-.loading-moon {
-  font-size: 4rem;
-  animation: loadingPulse 2s ease-in-out infinite, loadingFloat 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(254, 247, 255, 0.4));
-}
-
-@keyframes loadingPulse {
-
-  0%,
-  100% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.15);
-  }
-}
-
-@keyframes loadingFloat {
-
-  0%,
-  100% {
-    translate: 0 0;
-  }
-
-  50% {
-    translate: 0 -10px;
-  }
-}
-
-.loading-title {
-  font-family: 'Cormorant Garamond', 'Cormorant Garamond Fallback', serif;
-  font-size: 2rem;
-  font-weight: 600;
+#lcp-placeholder h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
   color: #FEF7FF;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  margin: 0;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 20px rgba(254, 247, 255, 0.4);
 }
 
-.loading-bar-container {
-  width: 200px;
-  height: 3px;
-  background: rgba(254, 247, 255, 0.15);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.loading-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #845EC2, #FEF7FF);
-  border-radius: 4px;
-  transition: width 0.3s ease;
-}
-
-.loading-subtitle {
-  font-family: 'Inter', 'Inter Fallback', sans-serif;
-  font-size: 0.85rem;
-  color: rgba(254, 247, 255, 0.5);
-  letter-spacing: 0.08em;
+#lcp-placeholder p {
+  font-family: 'Inter', sans-serif;
+  color: #D5CABD;
+  font-size: 1.2rem;
+  margin-top: 1rem;
 }
 
 * {
@@ -1898,15 +1837,9 @@ html.js-enabled .hero-section.spa-visible {
 
 <body>
 
-  <div class="loading-screen" id="loading-screen">
-    <div class="loading-content">
-      <div class="loading-moon">🌙</div>
-      <h2 class="loading-title">Luna's World</h2>
-      <div class="loading-bar-container">
-        <div class="loading-bar" id="loading-bar"></div>
-      </div>
-      <p class="loading-subtitle">Summoning the cosmos...</p>
-    </div>
+  <div id="lcp-placeholder">
+    <h1>Luna's World</h1>
+    <p>G Daffini Shiyalin</p>
   </div>
 
   <canvas id="webgl-canvas"></canvas>
@@ -1948,7 +1881,7 @@ html.js-enabled .hero-section.spa-visible {
           <span class="eyebrow hero-upcoming-title">Coming Soon</span>
           <div class="hero-upcoming-grid">
             <div class="glass-card hero-upcoming-card">
-              <div class="card-image hero-upcoming-image"><img src="assets/EIGHTEEN-small.webp" alt="EIGHTEEN Cover" width="140" height="175"></div>
+              <div class="card-image hero-upcoming-image"><img src="assets/EIGHTEEN-small.webp" alt="EIGHTEEN Cover" width="140" height="175" fetchpriority="high" loading="eager"></div>
               <span class="hero-upcoming-label">Upcoming Poem</span>
               <h2 class="hero-upcoming-heading">EIGHTEEN</h2>
             </div>
@@ -1975,7 +1908,7 @@ html.js-enabled .hero-section.spa-visible {
       </div>
       <div class="cards-grid">
         <div class="glass-card">
-          <div class="card-image"><img src="assets/The%20Hidden%20Bloodline.webp" alt="The Hidden Bloodline Cover" width="280" height="350"></div>
+          <div class="card-image"><img src="assets/The%20Hidden%20Bloodline.webp" alt="The Hidden Bloodline Cover" width="280" height="350" loading="lazy"></div>
           <div class="card-content">
             <h3>The Hidden Bloodline</h3>
             <p class="meta"><strong>Genre:</strong> Fantasy | <strong>Status:</strong> Ongoing |
@@ -2009,7 +1942,7 @@ html.js-enabled .hero-section.spa-visible {
       </div>
       <div class="cards-grid">
         <div class="glass-card">
-          <div class="card-image"><img src="assets/Whispers_of_Earth.webp" alt="Whispers of Earth Cover" width="280" height="350"></div>
+          <div class="card-image"><img src="assets/Whispers_of_Earth.webp" alt="Whispers of Earth Cover" width="280" height="350" loading="lazy"></div>
           <div class="card-content">
             <h3>Whispers of Earth</h3>
             <p class="meta"><strong>Genre:</strong> Dream Poetry</p>
@@ -2021,7 +1954,7 @@ html.js-enabled .hero-section.spa-visible {
           </div>
         </div>
         <div class="glass-card">
-          <div class="card-image"><img src="assets/She_Became_In_Silence.webp" alt="She Became In Silence Cover" width="280" height="350"></div>
+          <div class="card-image"><img src="assets/She_Became_In_Silence.webp" alt="She Became In Silence Cover" width="280" height="350" loading="lazy"></div>
           <div class="card-content">
             <h3>She Became In Silence</h3>
             <p class="meta"><strong>Genre:</strong> Cosmic Poetry</p>
@@ -2033,7 +1966,7 @@ html.js-enabled .hero-section.spa-visible {
           </div>
         </div>
         <div class="glass-card">
-          <div class="card-image"><img src="assets/Warmth_That_Burned.webp" alt="Warmth That Burned Cover" width="280" height="350"></div>
+          <div class="card-image"><img src="assets/Warmth_That_Burned.webp" alt="Warmth That Burned Cover" width="280" height="350" loading="lazy"></div>
           <div class="card-content">
             <h3>Warmth That Burned</h3>
             <p class="meta"><strong>Genre:</strong> Emotional Poetry</p>
@@ -2046,7 +1979,7 @@ html.js-enabled .hero-section.spa-visible {
           </div>
         </div>
         <div class="glass-card">
-          <div class="card-image"><img src="assets/EIGHTEEN.webp" alt="EIGHTEEN Cover" width="280" height="350"></div>
+          <div class="card-image"><img src="assets/EIGHTEEN.webp" alt="EIGHTEEN Cover" width="280" height="350" loading="lazy"></div>
           <div class="card-content">
             <h3>EIGHTEEN</h3>
             <p class="meta"><strong>Genre:</strong> Upcoming Poem</p>
@@ -2067,7 +2000,7 @@ html.js-enabled .hero-section.spa-visible {
       </div>
       <div class="cards-grid">
         <div class="glass-card">
-          <div class="card-image"><img src="assets/Library%20of%20stars.webp" alt="Library of Stars Cover" width="280" height="350"></div>
+          <div class="card-image"><img src="assets/Library%20of%20stars.webp" alt="Library of Stars Cover" width="280" height="350" loading="lazy"></div>
           <div class="card-content">
             <h3>Library of Stars</h3>
             <p class="description">A creative writing gallery inspired by celestial myths.</p>
@@ -2077,7 +2010,7 @@ html.js-enabled .hero-section.spa-visible {
           </div>
         </div>
         <div class="glass-card">
-          <div class="card-image"><img src="assets/Moonlit%20Journals.webp" alt="Moonlit Journals Cover" width="280" height="350"></div>
+          <div class="card-image"><img src="assets/Moonlit%20Journals.webp" alt="Moonlit Journals Cover" width="280" height="350" loading="lazy"></div>
           <div class="card-content">
             <h3>Moonlit Journals</h3>
             <p class="description">Personal writing prompts, sketches, and story seeds for creators.</p>

@@ -1,37 +1,33 @@
 (!(function () {
-  const e = document.getElementById("loading-bar"),
-    t = document.getElementById("loading-screen");
-  let n = 0;
-  const o = setInterval(() => {
-    n < 80
-      ? (n += 8 * Math.random() + 2)
-      : n < 95 && (n += 0.5 * Math.random()),
-      (n = Math.min(n, 95)),
-      e && (e.style.width = n + "%");
-  }, 50);
-
-  const hideLoader = () => {
-    clearInterval(o);
-    if (e) e.style.width = "100%";
-    setTimeout(() => {
-      if (t) t.classList.add("hidden");
-      setTimeout(() => {
-        if (t) t.remove();
-        
-        // Defer heavy Three.js background initialization
+    const t = document.getElementById("lcp-placeholder");
+  
+    const hideLoader = () => {
+      if (t) {
+        t.style.opacity = '0';
+        setTimeout(() => {
+          if (t) t.remove();
+          
+          // Defer heavy Three.js background initialization
+          const loadThreeJS = () => import('./three/main.js').catch(console.error);
+          if (window.requestIdleCallback) {
+            requestIdleCallback(loadThreeJS);
+          } else {
+            setTimeout(loadThreeJS, 100);
+          }
+        }, 800);
+      } else {
         const loadThreeJS = () => import('./three/main.js').catch(console.error);
         if (window.requestIdleCallback) {
           requestIdleCallback(loadThreeJS);
         } else {
           setTimeout(loadThreeJS, 100);
         }
-      }, 500);
-    }, 200);
-  };
-
-  window.addEventListener("load", hideLoader);
-  setTimeout(hideLoader, 1500);
-})(),
+      }
+    };
+  
+    window.addEventListener("load", hideLoader);
+    setTimeout(hideLoader, 1500); // Max wait time
+  })(),
   document.addEventListener("DOMContentLoaded", () => {
     const e = document.documentElement;
     document.addEventListener("mousemove", (t) => {
