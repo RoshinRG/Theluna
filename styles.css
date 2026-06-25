@@ -213,7 +213,7 @@ body {
     radial-gradient(circle at 80% 20%, rgba(213, 202, 189, 0.15) 0%, transparent 40%),
     linear-gradient(135deg, #1a1025 0%, var(--bg-deep) 50%, var(--bg-mid) 100%);
   background-attachment: fixed;
-  min-height: 100vh;
+  min-height: 100svh;
   overflow-x: hidden;
   scrollbar-gutter: stable;
   line-height: 1.6;
@@ -309,7 +309,7 @@ canvas {
   top: 0 !important;
   left: 0 !important;
   width: 100% !important;
-  height: 100vh !important;
+  height: 100svh !important;
   display: block;
   z-index: -1;
   pointer-events: none;
@@ -327,7 +327,7 @@ img {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   z-index: -2;
   background-image: radial-gradient(var(--highlight) 1px, transparent 1px);
   background-size: 100px 100px;
@@ -341,7 +341,7 @@ img {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100svh;
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
@@ -653,7 +653,7 @@ main {
 }
 
 .hero-section {
-  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1229,7 +1229,7 @@ html.js-enabled .spa-section.spa-visible {
   overflow: visible;
   padding-top: 8rem;
   padding-bottom: 4rem;
-  min-height: 100vh;
+  min-height: 100svh;
 }
 
 html.js-enabled .hero-section.spa-visible {
