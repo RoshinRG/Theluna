@@ -739,10 +739,12 @@ class CosmicApp {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       alpha: true,      
-      antialias: true   
+      antialias: false,
+      powerPreference: "high-performance"
     });
     
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+    const isMobile = window.innerWidth <= 768;
+    this.renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2)); 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     this.modules = [];
@@ -754,7 +756,7 @@ class CosmicApp {
     window.addEventListener('scroll', () => {
       this.scrollY = window.scrollY;
       this.targetCameraY = -this.scrollY * 0.05; 
-    });
+    }, { passive: true });
 
     this._boundResize = this.onWindowResize.bind(this);
     window.addEventListener('resize', this._boundResize);
