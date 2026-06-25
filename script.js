@@ -1,9 +1,20 @@
 (!(function () {
-    const t = document.getElementById("lcp-placeholder");
+    const e = document.getElementById("loading-bar"),
+      t = document.getElementById("loading-screen");
+    let n = 0;
+    const o = setInterval(() => {
+      n < 80
+        ? (n += 8 * Math.random() + 2)
+        : n < 95 && (n += 0.5 * Math.random()),
+        (n = Math.min(n, 95)),
+        e && (e.style.width = n + "%");
+    }, 50);
   
     const hideLoader = () => {
-      if (t) {
-        t.style.opacity = '0';
+      clearInterval(o);
+      if (e) e.style.width = "100%";
+      setTimeout(() => {
+        if (t) t.classList.add("hidden");
         setTimeout(() => {
           if (t) t.remove();
           
@@ -14,19 +25,12 @@
           } else {
             setTimeout(loadThreeJS, 100);
           }
-        }, 800);
-      } else {
-        const loadThreeJS = () => import('./three/main.js').catch(console.error);
-        if (window.requestIdleCallback) {
-          requestIdleCallback(loadThreeJS);
-        } else {
-          setTimeout(loadThreeJS, 100);
-        }
-      }
+        }, 500);
+      }, 200);
     };
   
     window.addEventListener("load", hideLoader);
-    setTimeout(hideLoader, 1500); // Max wait time
+    setTimeout(hideLoader, 1500); // Fallback max loader time
   })(),
   document.addEventListener("DOMContentLoaded", () => {
     const e = document.documentElement;
