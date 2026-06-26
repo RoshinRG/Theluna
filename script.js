@@ -1,48 +1,19 @@
-(!(function () {
-    const e = document.getElementById("loading-bar"),
-      t = document.getElementById("loading-screen");
-    let n = 0;
-    const o = setInterval(() => {
-      n < 80
-        ? (n += 8 * Math.random() + 2)
-        : n < 95 && (n += 0.5 * Math.random()),
-        (n = Math.min(n, 95)),
-        e && requestAnimationFrame(() => e.style.width = n + "%");
-    }, 50);
-  
-    
-    const removeLoader = () => {
-      clearInterval(o);
-      const content = document.querySelector('.loading-content');
-      if (content) {
-        content.style.opacity = '0';
-        content.style.transition = 'opacity 0.3s';
-        setTimeout(() => content.remove(), 300);
-      }
-      const t = document.getElementById('loading-screen');
-      if (t) {
-        t.style.opacity = '0';
-        t.style.transition = 'opacity 0.3s';
-        setTimeout(() => t.remove(), 300);
-      }
-      
-      const loadThreeJS = () => {
-        if (window.threejsLoaded) return;
-        window.threejsLoaded = true;
-        import('./three/main.js').catch(console.error);
-      };
-      const interactions = ['mousemove', 'scroll', 'touchstart', 'keydown', 'click'];
-      interactions.forEach((ev) => {
-        window.addEventListener(ev, loadThreeJS, { once: true, passive: true });
-      });
-      setTimeout(loadThreeJS, 8000);
-    };
-  
-    window.addEventListener('load', removeLoader, { passive: true });
-    setTimeout(removeLoader, 3000); // Fallback max loader time
-
-  })(),
-  document.addEventListener("DOMContentLoaded", () => {
+// Three.js is loaded lazily on first user interaction to avoid blocking LCP.
+// The loading screen has been removed — content is visible immediately.
+(function setupLazyThreeJS() {
+  var loaded = false;
+  function loadThreeJS() {
+    if (loaded) return;
+    loaded = true;
+    import('./three/main.js').catch(console.error);
+  }
+  ['mousemove', 'scroll', 'touchstart', 'keydown', 'click'].forEach(function(ev) {
+    window.addEventListener(ev, loadThreeJS, { once: true, passive: true });
+  });
+  // Fallback: load Three.js 8s after page ready if no interaction
+  setTimeout(loadThreeJS, 8000);
+}());
+document.addEventListener("DOMContentLoaded", () => {
     const e = document.documentElement;
     document.addEventListener("mousemove", (t) => {
       (e.style.setProperty("--cursor-x", `${t.clientX}px`),
@@ -349,4 +320,4 @@
         star.remove();
       }, 700);
     });
-  }));
+  });
