@@ -57,7 +57,7 @@
       --luna-ring:       #D8C8F0;
       --luna-glow:       rgba(200, 180, 255, 0.25);
       --luna-particle:   rgba(255, 255, 255, 0.7);
-      --luna-min-time:   2400;
+      --luna-min-time:   3500;
     }
 
     #luna-loader {
@@ -309,7 +309,7 @@
         }, prefersReducedMotion ? 0 : 100);
       }
 
-      window.LUNA_MIN_TIME = prefersReducedMotion ? 0 : 2400;
+      window.LUNA_MIN_TIME = prefersReducedMotion ? 0 : 3500;
       const minTimer = new Promise(resolve => setTimeout(resolve, window.LUNA_MIN_TIME));
       const pageLoaded = new Promise(resolve => {
         if (document.readyState === 'complete') resolve();
