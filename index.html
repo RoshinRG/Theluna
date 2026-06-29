@@ -7,7 +7,6 @@
   <title>Luna's World - A Magical Author Universe</title>
   <meta name="description"
     content="Stories, poetry, dreams, and worlds beyond imagination by G Daffini Shiyalin (Luna).">
-
   <meta property="og:title" content="Luna's World - A Magical Author Universe">
   <meta property="og:description"
     content="Stories, poetry, dreams, and worlds beyond imagination by G Daffini Shiyalin (Luna).">
@@ -18,20 +17,14 @@
   <meta name="twitter:description"
     content="Stories, poetry, dreams, and worlds beyond imagination by G Daffini Shiyalin (Luna).">
   <meta name="twitter:image" content="/assets/og-image.jpg">
-
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
-
-
   <script>
     document.documentElement.classList.add('js-enabled');
   </script>
-
   <link rel="dns-prefetch" href="https://script.google.com">
   <link rel="dns-prefetch" href="https://sheets.googleapis.com">
   <link rel="dns-prefetch" href="https://openai.com">
-
-
   <script type="importmap">
     {
       "imports": {
@@ -41,204 +34,35 @@
     }
   </script>
   <link rel="modulepreload" href="/three/three.custom.min.js">
-
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet">
-  <style>
-    /* loader CSS */
-    :root {
-      --luna-bg-start:   #2D1850;
-      --luna-bg-mid:     #4A2575;
-      --luna-bg-end:     #3B2060;
-      --luna-text:       #F0EAF8;
-      --luna-muted:      rgba(220, 210, 240, 0.6);
-      --luna-ring:       #D8C8F0;
-      --luna-glow:       rgba(200, 180, 255, 0.25);
-      --luna-particle:   rgba(255, 255, 255, 0.7);
-      --luna-min-time:   3500;
-    }
-
-    #luna-loader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      transition: opacity 700ms ease, transform 700ms ease;
-    }
-
-    .luna-bg-gradient {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 70% 50% at 50% 50%, var(--luna-bg-mid) 0%, var(--luna-bg-start) 45%, var(--luna-bg-end) 100%);
-      opacity: 0;
-      z-index: 1;
-    }
-
-    #luna-loader.phase-1 .luna-bg-gradient {
-      transition: opacity 600ms ease;
-      opacity: 1;
-    }
-
-    .loader-shooting-star {
-      position: absolute;
-      top: 15%;
-      right: 15%;
-      width: 150px;
-      height: 1px;
-      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
-      transform: rotate(-45deg);
-      opacity: 0;
-      z-index: 2;
-    }
-    #luna-loader.phase-1 .loader-shooting-star {
-      transition: opacity 600ms ease;
-      opacity: 0.35;
-    }
-
-    .luna-particles-container {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      opacity: 0;
-    }
-    #luna-loader.phase-1 .luna-particles-container {
-      transition: opacity 600ms ease;
-      opacity: 1;
-    }
-
-    .luna-particle {
-      position: absolute;
-      background: var(--luna-particle);
-      border-radius: 50%;
-      animation: particlePulse infinite alternate ease-in-out;
-    }
-    @keyframes particlePulse {
-      0% { opacity: 0.3; }
-      100% { opacity: 0.9; }
-    }
-
-    .loader-content {
-      position: relative;
-      z-index: 4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .moon-ring {
-      width: 80px;
-      height: 80px;
-      overflow: visible;
-      filter: drop-shadow(0 0 10px rgba(200, 180, 255, 0.3));
-    }
-    .moon-circle {
-      stroke: var(--luna-ring);
-      stroke-width: 1;
-      fill: none;
-      stroke-dasharray: 226.2; /* 2 * pi * 36 */
-      stroke-dashoffset: 226.2;
-      transform: rotate(-90deg);
-      transform-origin: center;
-    }
-    #luna-loader.phase-2 .moon-circle {
-      transition: stroke-dashoffset 700ms ease-in-out;
-      stroke-dashoffset: 0;
-    }
-
-    .loader-tagline {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 15px;
-      font-style: italic;
-      color: var(--luna-muted);
-      letter-spacing: 0.12em;
-      margin: 20px 0 0 0;
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    #luna-loader.phase-3 .loader-tagline {
-      transition: opacity 400ms ease, transform 400ms ease;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .loader-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 32px;
-      font-style: italic;
-      font-weight: 400;
-      color: var(--luna-text);
-      margin: 10px 0 0 0;
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    #luna-loader.phase-4 .loader-title {
-      transition: opacity 600ms ease, transform 600ms ease;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .loader-status {
-      font-family: 'Inter', sans-serif;
-      font-size: 11px;
-      color: rgba(220, 210, 240, 0.5);
-      margin: 16px 0 0 0;
-      min-height: 16px;
-      opacity: 0;
-      transition: opacity 250ms ease;
-    }
-    #luna-loader.phase-5 .loader-status.show { opacity: 1; }
-    #luna-loader.phase-5 .loader-status.hide { opacity: 0; }
-
-    #luna-loader.exiting {
-      opacity: 0;
-      transform: translateY(-10px);
-      pointer-events: none;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      #luna-loader { background: var(--luna-bg-mid); transition: none; }
-      .luna-bg-gradient { display: none; }
-      .luna-particles-container { display: none; }
-      .loader-shooting-star { display: none; }
-      .moon-circle { transition: none; stroke-dashoffset: 0; }
-      .loader-tagline { transition: none; opacity: 1; transform: translateY(0); }
-      .loader-title { transition: none; opacity: 1; transform: translateY(0); }
-      .loader-status { transition: none; opacity: 1; }
-    }
-  </style>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Inter:wght@300;400&display=swap"
+    rel="stylesheet">
 </head>
 
 <body>
-    <!-- LOADER -->
+  <!-- LOADER -->
   <div id="luna-loader" aria-label="Loading Luna's World" role="status" aria-live="polite">
     <div class="luna-bg-gradient"></div>
     <div class="luna-particles-container" id="luna-particles-container"></div>
     <div class="loader-shooting-star"></div>
     <div class="loader-content">
       <svg class="moon-ring" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <circle class="moon-circle" cx="50" cy="50" r="36"/>
+        <circle class="moon-circle" cx="50" cy="50" r="36" />
       </svg>
       <p class="loader-tagline">A magical author universe</p>
       <h1 class="loader-title">Welcome to Luna's World</h1>
       <p class="loader-status" id="luna-status-text"></p>
     </div>
   </div>
-
   <script>
     (function () {
       const loader = document.getElementById('luna-loader');
       const particlesContainer = document.getElementById('luna-particles-container');
       const statusText = document.getElementById('luna-status-text');
-      
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
       if (!prefersReducedMotion) {
         // Generate particles
         const numParticles = 30 + Math.floor(Math.random() * 11); // 30-40 particles
@@ -255,9 +79,7 @@
           particlesContainer.appendChild(p);
         }
       }
-
       let statusInterval;
-
       if (prefersReducedMotion) {
         // Just show everything immediately if reduced motion
         loader.classList.add('phase-1', 'phase-2', 'phase-3', 'phase-4', 'phase-5');
@@ -268,11 +90,9 @@
         requestAnimationFrame(() => {
           loader.classList.add('phase-1'); // 0ms - Background and particles
         });
-
         setTimeout(() => { loader.classList.add('phase-2'); }, 400); // Moon ring
         setTimeout(() => { loader.classList.add('phase-3'); }, 900); // Tagline
         setTimeout(() => { loader.classList.add('phase-4'); }, 1100); // Title
-        
         setTimeout(() => {
           loader.classList.add('phase-5'); // Status
           const phrases = ["gathering pages...", "entering the world..."];
@@ -291,15 +111,12 @@
           statusInterval = setInterval(swap, 600);
         }, 1600);
       }
-
       function exitLoader() {
         clearInterval(statusInterval);
-        
         if (!prefersReducedMotion) {
           statusText.classList.remove('show');
           statusText.style.opacity = '0';
         }
-
         setTimeout(() => {
           loader.classList.add('exiting');
           setTimeout(() => {
@@ -308,31 +125,24 @@
           }, 700);
         }, prefersReducedMotion ? 0 : 100);
       }
-
-      window.LUNA_MIN_TIME = prefersReducedMotion ? 0 : 3500;
+      window.LUNA_MIN_TIME = prefersReducedMotion ? 0 : 7000;
       const minTimer = new Promise(resolve => setTimeout(resolve, window.LUNA_MIN_TIME));
       const pageLoaded = new Promise(resolve => {
         if (document.readyState === 'complete') resolve();
         else window.addEventListener('load', resolve, { once: true });
       });
-
       Promise.all([minTimer, pageLoaded]).then(exitLoader);
     })();
   </script>
-
   <canvas id="webgl-canvas"></canvas>
-
   <div class="cursor-dot" id="cursor-dot"></div>
   <div class="cursor-glow" id="cursor-glow"></div>
-
   <div class="star-field"></div>
-
   <div class="drifting-stars">
     <div class="star-particle star-1"></div>
     <div class="star-particle star-2"></div>
     <div class="star-particle star-3"></div>
   </div>
-
   <nav class="spotlight-nav" id="spotlight-nav">
     <div class="nav-spotlight" id="nav-spotlight"></div>
     <div class="nav-ambience" id="nav-ambience"></div>
@@ -344,7 +154,6 @@
       <li><a href="#contact" class="nav-link" data-target="contact">Contact</a></li>
     </ul>
   </nav>
-
   <main>
     <section id="home" class="hero-section spa-section spa-visible">
       <div class="hero-content">
@@ -381,7 +190,6 @@
         <div class="constellation-dot dot-3"></div>
       </div>
     </section>
-
     <section id="books" class="content-section fade-in-up spa-section">
       <div class="section-header">
         <span class="eyebrow">Books</span>
@@ -420,7 +228,6 @@
         </div>
       </div>
     </section>
-
     <section id="poetry" class="content-section fade-in-up spa-section">
       <div class="section-header">
         <span class="eyebrow">Poetry</span>
@@ -498,7 +305,6 @@
         </div>
       </div>
     </section>
-
     <section id="projects" class="content-section fade-in-up spa-section">
       <div class="section-header">
         <span class="eyebrow">Projects</span>
@@ -538,7 +344,6 @@
         </div>
       </div>
     </section>
-
     <section id="contact" class="content-section fade-in-up spa-section">
       <div class="section-header">
         <span class="eyebrow">Contact</span>
@@ -551,12 +356,10 @@
           <p><strong>Email:</strong> <a href="mailto:daffini1908@gmail.com" class="text-link">daffini1908@gmail.com</a>
           </p>
           <div class="social-flip-container" id="social-flip-container">
-
             <div class="social-border-lines">
               <div class="border-top"></div>
               <div class="border-bottom"></div>
             </div>
-
             <a href="mailto:daffini1908@gmail.com" class="social-flip-node" style="--delay: 0s;">
               <div class="social-tooltip">Email<div class="tooltip-arrow"></div>
               </div>
@@ -570,7 +373,6 @@
                 </div>
               </div>
             </a>
-
             <a href="https://www.wattpad.com/user/author_luna1" target="_blank" rel="noopener noreferrer"
               class="social-flip-node" style="--delay: 0.08s;">
               <div class="social-tooltip">Wattpad<div class="tooltip-arrow"></div>
@@ -603,11 +405,9 @@
       </div>
     </section>
   </main>
-
   <footer>
     <p>&copy; <span id="current-year">2026</span> Luna's World. A cosmic library for writers and dreamers.</p>
   </footer>
-
   <div class="astra-widget" id="astra-widget">
     <button type="button" class="astra-toggle" id="astra-toggle" aria-expanded="false" aria-controls="astra-panel">✨
       Chat ASTRA</button>
@@ -620,12 +420,10 @@
         <button type="button" class="astra-close" id="astra-close" aria-label="Close Chat">&times;</button>
       </div>
       <div class="astra-messages" id="astra-messages" aria-live="polite">
-
         <div class="msg astra-msg">
           <div class="msg-bubble">Hello, I'm Astra, Luna's AI assistant. Welcome to Luna's World. How may I assist you
             today?</div>
         </div>
-
         <div class="typing-indicator-container" id="astra-typing-indicator" style="display: none;">
           <div class="typing-indicator"><span></span><span></span><span></span></div>
         </div>
@@ -642,7 +440,6 @@
       </form>
     </div>
   </div>
-
   <div class="expandable-backdrop" id="expandable-backdrop"></div>
   <div class="expandable-modal glass-card" id="expandable-modal" inert>
     <button type="button" class="expandable-close" id="expandable-close" aria-label="Close Modal">&times;</button>
@@ -660,11 +457,9 @@
       </div>
       <div class="expandable-body" id="expandable-body">
         <p id="expandable-description"></p>
-
       </div>
     </div>
   </div>
-
   <script defer src="script.min.js"></script>
   <!-- Three.js is loaded dynamically by script.js to eliminate unused JS penalty -->
 </body>

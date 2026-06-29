@@ -1454,4 +1454,169 @@ html.js-enabled .hero-section.spa-visible {
     opacity: 0;
   }
 }
-  
+
+/* loader CSS */
+:root {
+  --luna-bg-start:   #2D1850;
+  --luna-bg-mid:     #4A2575;
+  --luna-bg-end:     #3B2060;
+  --luna-text:       #F0EAF8;
+  --luna-muted:      rgba(220, 210, 240, 0.6);
+  --luna-ring:       #D8C8F0;
+  --luna-glow:       rgba(200, 180, 255, 0.25);
+  --luna-particle:   rgba(255, 255, 255, 0.7);
+  --luna-min-time:   7000;
+}
+
+#luna-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+
+.luna-bg-gradient {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 50%, var(--luna-bg-mid) 0%, var(--luna-bg-start) 45%, var(--luna-bg-end) 100%);
+  opacity: 0;
+  z-index: 1;
+}
+
+#luna-loader.phase-1 .luna-bg-gradient {
+  transition: opacity 600ms ease;
+  opacity: 1;
+}
+
+.loader-shooting-star {
+  position: absolute;
+  top: 15%;
+  right: 15%;
+  width: 150px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+  transform: rotate(-45deg);
+  opacity: 0;
+  z-index: 2;
+}
+#luna-loader.phase-1 .loader-shooting-star {
+  transition: opacity 600ms ease;
+  opacity: 0.35;
+}
+
+.luna-particles-container {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+}
+#luna-loader.phase-1 .luna-particles-container {
+  transition: opacity 600ms ease;
+  opacity: 1;
+}
+
+.luna-particle {
+  position: absolute;
+  background: var(--luna-particle);
+  border-radius: 50%;
+  animation: particlePulse infinite alternate ease-in-out;
+}
+@keyframes particlePulse {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.9; }
+}
+
+.loader-content {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.moon-ring {
+  width: 80px;
+  height: 80px;
+  overflow: visible;
+  filter: drop-shadow(0 0 10px rgba(200, 180, 255, 0.3));
+}
+.moon-circle {
+  stroke: var(--luna-ring);
+  stroke-width: 1;
+  fill: none;
+  stroke-dasharray: 226.2; /* 2 * pi * 36 */
+  stroke-dashoffset: 226.2;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+#luna-loader.phase-2 .moon-circle {
+  transition: stroke-dashoffset 700ms ease-in-out;
+  stroke-dashoffset: 0;
+}
+
+.loader-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-style: italic;
+  color: var(--luna-muted);
+  letter-spacing: 0.12em;
+  margin: 20px 0 0 0;
+  opacity: 0;
+  transform: translateY(8px);
+}
+#luna-loader.phase-3 .loader-tagline {
+  transition: opacity 400ms ease, transform 400ms ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.loader-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--luna-text);
+  margin: 10px 0 0 0;
+  opacity: 0;
+  transform: translateY(10px);
+}
+#luna-loader.phase-4 .loader-title {
+  transition: opacity 600ms ease, transform 600ms ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.loader-status {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(220, 210, 240, 0.5);
+  margin: 16px 0 0 0;
+  min-height: 16px;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+#luna-loader.phase-5 .loader-status.show { opacity: 1; }
+#luna-loader.phase-5 .loader-status.hide { opacity: 0; }
+
+#luna-loader.exiting {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #luna-loader { background: var(--luna-bg-mid); transition: none; }
+  .luna-bg-gradient { display: none; }
+  .luna-particles-container { display: none; }
+  .loader-shooting-star { display: none; }
+  .moon-circle { transition: none; stroke-dashoffset: 0; }
+  .loader-tagline { transition: none; opacity: 1; transform: translateY(0); }
+  .loader-title { transition: none; opacity: 1; transform: translateY(0); }
+  .loader-status { transition: none; opacity: 1; }
+}
