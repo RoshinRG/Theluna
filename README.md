@@ -115,17 +115,14 @@ The Luna/
 
 ### Running Locally
 
+To run the project on your machine with hot-reloading, you can use `live-server` via Node.js. In the project root directory, run:
+
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/the-luna.git
-cd the-luna
-
-# Option 1: Open directly
-# Simply open index.html in your browser
-
-# Option 2: Use a local dev server (recommended)
-npx live-server --port=3000
+npx live-server --port=3100
 ```
+
+Then open `http://localhost:3100` in your web browser.
+
 
 ### Setting Up ASTRA (AI Chat)
 

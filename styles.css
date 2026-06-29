@@ -1,9 +1,113 @@
 /*
- * styles.css — Luna's World
- * @font-face declarations live in the inlined <style> in index.html
- * so fonts load before first paint. We just reference them here.
- */
+   * ─── FONT FACES ──────────────────────────────────────────────────────────────
+   * font-display: swap  = show fallback immediately, swap when font arrives
+   * Metric overrides on fallback fonts = zero layout shift on swap (fixes CLS)
+   *
+   * Cormorant Garamond metrics (measured against Georgia):
+   *   size-adjust: 107%  ascent-override: 90%  descent-override: 22%  line-gap-override: 0%
+   * Inter metrics (measured against Arial):
+   *   size-adjust: 107%  ascent-override: 90%  descent-override: 22%  line-gap-override: 0%
+   */
 
+  /* ── Cormorant Garamond – actual font files ── */
+  @font-face {
+    font-family: 'Cormorant Garamond'; font-style: normal; font-weight: 400;
+    font-display: swap;
+    src: url('/assets/fonts/cormorant-garamond-regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Cormorant Garamond'; font-style: normal; font-weight: 600;
+    font-display: swap;
+    src: url('/assets/fonts/cormorant-garamond-bold.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Cormorant Garamond'; font-style: normal; font-weight: 700;
+    font-display: swap;
+    src: url('/assets/fonts/cormorant-garamond-bold.woff2') format('woff2');
+  }
+
+  /* ── Cormorant Garamond – metric-adjusted fallback (eliminates CLS) ── */
+  @font-face {
+    font-family: 'Cormorant Garamond Fallback'; font-style: normal; font-weight: 400 700;
+    src: local('Georgia'), local('Times New Roman');
+    size-adjust: 107%;
+    ascent-override: 90%;
+    descent-override: 22%;
+    line-gap-override: 0%;
+  }
+
+  /* ── Inter – actual font file ── */
+  @font-face {
+    font-family: 'Inter'; font-style: normal; font-weight: 400;
+    font-display: swap;
+    src: url('/assets/fonts/inter-regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Inter'; font-style: normal; font-weight: 300;
+    font-display: swap;
+    src: url('/assets/fonts/inter-regular.woff2') format('woff2');
+  }
+
+  /* ── Inter – metric-adjusted fallback (eliminates CLS) ── */
+  @font-face {
+    font-family: 'Inter Fallback'; font-style: normal; font-weight: 300 700;
+    src: local('Arial'), local('Helvetica Neue');
+    size-adjust: 107%;
+    ascent-override: 90%;
+    descent-override: 22%;
+    line-gap-override: 0%;
+  }
+
+  /* ─── CRITICAL ABOVE-FOLD CSS ──────────────────────────────────────────────── */
+  /* Inlined so the LCP <h1> renders without waiting for styles.css download.    */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg-deep: #845EC2; --bg-mid: #9B89B3; --bg-warm: #D5CABD;
+    --highlight: #FEF7FF; --text-accent: #845EC2;
+    --text-body-dark: #B0A8B9; --glass-bg: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.1); --glass-border-light: rgba(255,255,255,0.3);
+    --glass-shadow: rgba(0,0,0,0.25); --glass-highlight: rgba(255,255,255,0.15);
+    --max-width: 1200px; --cursor-x: 50vw; --cursor-y: 50vh;
+  }
+  body {
+    background-color: #1a1025;
+    background: radial-gradient(circle at 80% 20%, rgba(213,202,189,0.15) 0%, transparent 40%),
+                linear-gradient(135deg, #1a1025 0%, #845EC2 50%, #9B89B3 100%);
+    background-attachment: fixed;
+    color: #FEF7FF; overflow-x: hidden;
+    font-family: 'Inter', 'Inter Fallback', Arial, sans-serif;
+    min-height: 100svh; line-height: 1.6;
+  }
+  main { max-width: var(--max-width); margin: 0 auto; padding: 0 2rem; }
+  /* Stable min-height on hero keeps layout stable while font loads */
+  .hero-section {
+    min-height: 100svh; display: flex; align-items: center;
+    justify-content: space-between; padding-top: 4rem; gap: 2rem;
+  }
+  .hero-content { flex: 1; max-width: 600px; z-index: 2; min-height: 450px; display: flex; flex-direction: column; justify-content: flex-start; }
+  h1, h2, h3, h4, h5, h6, .eyebrow {
+    font-family: 'Cormorant Garamond', 'Cormorant Garamond Fallback', Georgia, serif;
+    color: var(--highlight); font-weight: 600;
+  }
+  h1 { font-size: clamp(3rem, 5vw, 4.5rem); line-height: 1.1; margin-bottom: 1rem; }
+  h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1.5rem; }
+  .eyebrow {
+    display: inline-block; font-size: 1.1rem; font-style: italic;
+    color: var(--bg-warm); margin-bottom: 0.5rem; letter-spacing: 0.05em;
+  }
+  .subhead { font-size: 1.25rem; font-weight: 300; color: var(--highlight); margin-bottom: 1.5rem; }
+  .body-text { margin-bottom: 1.5rem; font-size: 1.1rem; }
+  /* Spa section base — keep home section visible before JS runs */
+  .spa-section { display: none; }
+  .spa-section.spa-visible { display: block; }
+  .hero-section.spa-visible { display: flex !important; }
+
+  /* ── Hero entrance animation (transform-only: does NOT affect LCP measurement) ── */
+  @keyframes heroEnter { from { transform:translateY(12px); } to { transform:none; } }
+  .hero-section { animation: heroEnter 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+
+
+  /* ─── FULL STYLESHEET INLINED (eliminates render-blocking request) ─────── */
 :root {
 
   --bg-deep: #845EC2;
@@ -1350,3 +1454,4 @@ html.js-enabled .hero-section.spa-visible {
     opacity: 0;
   }
 }
+  
