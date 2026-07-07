@@ -44,95 +44,86 @@
 
 <body>
   <!-- LOADER -->
-  <div id="luna-loader" aria-label="Loading Luna's World" role="status" aria-live="polite">
-    <div class="luna-bg-gradient"></div>
-    <div class="luna-particles-container" id="luna-particles-container"></div>
-    <div class="loader-shooting-star"></div>
+  <div class="loader-container" aria-label="Loading Luna's World" role="status" aria-live="polite">
+    <div id="stars" class="stars"></div>
     <div class="loader-content">
-      <svg class="moon-ring" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <circle class="moon-circle" cx="50" cy="50" r="36" />
+      <svg id="moon" class="moon" width="90" height="90" viewBox="0 0 90 90">
+        <circle cx="45" cy="45" r="40" fill="#f2ead3" />
+        <circle id="shadow" cx="65" cy="45" r="40" fill="#0a0a12" />
       </svg>
-      <p class="loader-tagline">A magical author universe</p>
-      <h1 class="loader-title">Welcome to Luna's World</h1>
-      <p class="loader-status" id="luna-status-text"></p>
+      <p id="loadtext" class="load-text">Turning the page&hellip;</p>
+      <div class="progress-track">
+        <div id="bar" class="progress-bar"></div>
+      </div>
     </div>
   </div>
   <script>
     (function () {
-      const loader = document.getElementById('luna-loader');
-      const particlesContainer = document.getElementById('luna-particles-container');
-      const statusText = document.getElementById('luna-status-text');
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!prefersReducedMotion) {
-        // Generate particles
-        const numParticles = 30 + Math.floor(Math.random() * 11); // 30-40 particles
-        for (let i = 0; i < numParticles; i++) {
-          const p = document.createElement('div');
-          p.className = 'luna-particle';
-          const size = 1 + Math.random() * 2; // 1-3px
-          p.style.width = size + 'px';
-          p.style.height = size + 'px';
-          p.style.left = Math.random() * 100 + '%';
-          p.style.top = Math.random() * 100 + '%';
-          p.style.animationDuration = (2 + Math.random() * 2) + 's'; // 2-4s duration
-          p.style.animationDelay = (Math.random() * 2) + 's'; // staggered delays
-          particlesContainer.appendChild(p);
+      const STAR_COUNT = 40;
+      const PHRASES = [
+        'Turning the page…',
+        'Waking Astra…',
+        'Charting the night sky…',
+        'Binding the story…'
+      ];
+      const PHRASE_INTERVAL_MS = 2200;
+      const PHRASE_FADE_MS = 300;
+
+      const starsContainer = document.getElementById('stars');
+      const shadow = document.getElementById('shadow');
+      const bar = document.getElementById('bar');
+      const text = document.getElementById('loadtext');
+
+      let phraseIndex = 0;
+      let t = 0;
+
+      function createStars() {
+        for (let i = 0; i < STAR_COUNT; i++) {
+          const star = document.createElement('div');
+          const size = Math.random() * 1.5 + 0.5;
+          star.className = 'star';
+          star.style.width = `${size}px`;
+          star.style.height = `${size}px`;
+          star.style.opacity = Math.random() * 0.6 + 0.2;
+          star.style.left = `${Math.random() * 100}%`;
+          star.style.top = `${Math.random() * 100}%`;
+          starsContainer.appendChild(star);
         }
       }
-      let statusInterval;
-      if (prefersReducedMotion) {
-        // Just show everything immediately if reduced motion
-        loader.classList.add('phase-1', 'phase-2', 'phase-3', 'phase-4', 'phase-5');
-        statusText.textContent = "entering the world...";
-        statusText.classList.add('show');
-      } else {
-        // Timeline
-        requestAnimationFrame(() => {
-          loader.classList.add('phase-1'); // 0ms - Background and particles
-        });
-        setTimeout(() => { loader.classList.add('phase-2'); }, 400); // Moon ring
-        setTimeout(() => { loader.classList.add('phase-3'); }, 900); // Tagline
-        setTimeout(() => { loader.classList.add('phase-4'); }, 1100); // Title
-        setTimeout(() => {
-          loader.classList.add('phase-5'); // Status
-          const phrases = ["gathering pages...", "entering the world..."];
-          let pIdx = 0;
-          const swap = () => {
-            statusText.classList.remove('show');
-            statusText.classList.add('hide');
-            setTimeout(() => {
-              statusText.textContent = phrases[pIdx % phrases.length];
-              statusText.classList.remove('hide');
-              statusText.classList.add('show');
-              pIdx++;
-            }, 250);
-          };
-          swap();
-          statusInterval = setInterval(swap, 600);
-        }, 1600);
+
+      function animate() {
+        t += 0.01;
+
+        const moonOffset = 65 + Math.sin(t) * 30;
+        shadow.setAttribute('cx', moonOffset.toFixed(1));
+
+        const progress = (Math.sin(t * 0.6) * 0.5 + 0.5) * 100;
+        bar.style.width = `${progress.toFixed(0)}%`;
+
+        requestAnimationFrame(animate);
       }
-      function exitLoader() {
-        clearInterval(statusInterval);
-        if (!prefersReducedMotion) {
-          statusText.classList.remove('show');
-          statusText.style.opacity = '0';
-        }
-        setTimeout(() => {
-          loader.classList.add('exiting');
+
+      function cyclePhrases() {
+        setInterval(() => {
+          phraseIndex = (phraseIndex + 1) % PHRASES.length;
+          text.style.opacity = 0;
           setTimeout(() => {
-            loader.style.display = 'none';
-            document.dispatchEvent(new CustomEvent('lunaReady'));
-          }, 700);
-        }, prefersReducedMotion ? 0 : 100);
+            text.textContent = PHRASES[phraseIndex];
+            text.style.opacity = 1;
+          }, PHRASE_FADE_MS);
+        }, PHRASE_INTERVAL_MS);
       }
-      window.LUNA_MIN_TIME = prefersReducedMotion ? 0 : 7000;
-      const minTimer = new Promise(resolve => setTimeout(resolve, window.LUNA_MIN_TIME));
-      const pageLoaded = new Promise(resolve => {
-        if (document.readyState === 'complete') resolve();
-        else window.addEventListener('load', resolve, { once: true });
-      });
-      Promise.all([minTimer, pageLoaded]).then(exitLoader);
+
+      function init() {
+        createStars();
+        animate();
+        cyclePhrases();
+      }
+
+      init();
     })();
+
+
   </script>
   <canvas id="webgl-canvas"></canvas>
   <div class="cursor-dot" id="cursor-dot"></div>
