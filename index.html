@@ -44,56 +44,241 @@
 
 <body>
   <!-- LOADER -->
-  <div class="loader-container">
-    <div id="stars" class="stars"></div>
-    <div class="loader-content">
-      <svg id="moon" class="moon" width="90" height="90" viewBox="0 0 90 90">
-        <circle cx="45" cy="45" r="40" fill="#f2ead3"/>
-        <circle id="shadow" cx="65" cy="45" r="40" fill="#0a0a12"/>
-      </svg>
-      <p id="loadtext" class="load-text">Turning the page&hellip;</p>
-      <div class="progress-track">
-        <div id="bar" class="progress-bar"></div>
+  <div id="luna-loader" aria-label="Loading Luna's World" role="status" aria-live="polite">
+
+    <!-- Pure-CSS twinkling starfield (no JS, no external lib) -->
+    <div class="ldr-stars" aria-hidden="true">
+      <div class="ldr-star-layer ldr-star-layer--sm"></div>
+      <div class="ldr-star-layer ldr-star-layer--md"></div>
+      <div class="ldr-star-layer ldr-star-layer--lg"></div>
+    </div>
+
+    <!-- Shooting star decorative element -->
+    <div class="ldr-shooting-star" aria-hidden="true"></div>
+    <div class="ldr-shooting-star ldr-shooting-star--2" aria-hidden="true"></div>
+
+    <!-- Central content -->
+    <div class="ldr-content">
+
+      <!-- Moon SVG: animates through lunar phases via CSS clip-path -->
+      <div class="ldr-moon-wrap" aria-hidden="true">
+        <!-- Progress arc (SVG underneath moon) -->
+        <svg class="ldr-arc" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <circle class="ldr-arc__track" cx="60" cy="60" r="54"/>
+          <circle class="ldr-arc__fill" id="ldr-arc-fill" cx="60" cy="60" r="54"/>
+        </svg>
+
+        <!-- Moon body -->
+        <div class="ldr-moon" id="ldr-moon">
+          <!-- Shadow overlay that slides to create phase effect -->
+          <div class="ldr-moon__shadow" id="ldr-moon-shadow"></div>
+          <!-- Subtle crater marks -->
+          <div class="ldr-moon__crater ldr-moon__crater--1"></div>
+          <div class="ldr-moon__crater ldr-moon__crater--2"></div>
+          <div class="ldr-moon__crater ldr-moon__crater--3"></div>
+          <!-- Glow ring -->
+          <div class="ldr-moon__halo"></div>
+        </div>
       </div>
+
+      <!-- Text stack -->
+      <p class="ldr-tagline" id="ldr-tagline">A magical author universe</p>
+      <h1 class="ldr-title" id="ldr-title">Luna's World</h1>
+      <p class="ldr-enter" id="ldr-enter" aria-live="assertive">Entering Luna's World...</p>
+      <p class="ldr-status" id="ldr-status"></p>
     </div>
   </div>
+
   <script>
-  (function(){
-    const starsContainer = document.getElementById('stars');
-    for (let i=0;i<40;i++){
-      const s=document.createElement('div');
-      const size=Math.random()*1.5+0.5;
-      s.style.cssText=`position:absolute;width:${size}px;height:${size}px;background:#fff;border-radius:50%;opacity:${Math.random()*0.6+0.2};left:${Math.random()*100}%;top:${Math.random()*100}%;`;
-      starsContainer.appendChild(s);
+  /* ─── Luna Loader ─────────────────────────────────────────────────────────── */
+  (function () {
+    'use strict';
+
+    const loader   = document.getElementById('luna-loader');
+    const arcFill  = document.getElementById('ldr-arc-fill');
+    const moonEl   = document.getElementById('ldr-moon');
+    const shadow   = document.getElementById('ldr-moon-shadow');
+    const statusEl = document.getElementById('ldr-status');
+    const enterEl  = document.getElementById('ldr-enter');
+    const titleEl  = document.getElementById('ldr-title');
+    const tagEl    = document.getElementById('ldr-tagline');
+
+    const PRM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ── Arc geometry (r=54, circumference ≈ 339.3) ── */
+    const ARC_R = 54;
+    const ARC_C = 2 * Math.PI * ARC_R; // ≈ 339.29
+    arcFill.style.strokeDasharray  = ARC_C;
+    arcFill.style.strokeDashoffset = ARC_C; // start at 0%
+
+    /* ── Progress tracking ── */
+    let _progress = 0; // 0–1
+    let _rafPending = false;
+
+    function setProgress(p) {
+      _progress = Math.max(_progress, Math.min(1, p));
+      if (!_rafPending) {
+        _rafPending = true;
+        requestAnimationFrame(applyProgress);
+      }
     }
 
-    const shadow=document.getElementById('shadow');
-    const bar=document.getElementById('bar');
-    const text=document.getElementById('loadtext');
-    const phrases=["Turning the page…","Waking Astra…","Charting the night sky…","Binding the story…"];
-    let phraseIndex=0;
-    let t=0;
-
-    function animate(){
-      t+=0.01;
-      const offset = 65 + Math.sin(t)*30;
-      shadow.setAttribute('cx', offset.toFixed(1));
-      const progress = (Math.sin(t*0.6)*0.5+0.5)*100;
-      bar.style.width = progress.toFixed(0)+'%';
-      requestAnimationFrame(animate);
+    function applyProgress() {
+      _rafPending = false;
+      /* Arc fill */
+      arcFill.style.strokeDashoffset = ARC_C * (1 - _progress);
+      /* Lunar phase: shadow translates from covering full disk → off screen */
+      updateMoonPhase(_progress);
     }
-    animate();
 
-    setInterval(()=>{
-      phraseIndex=(phraseIndex+1)%phrases.length;
-      text.style.opacity=0;
-      setTimeout(()=>{
-        text.textContent=phrases[phraseIndex];
-        text.style.opacity=1;
-      },300);
-    },2200);
-    text.style.transition='opacity 0.3s ease';
-  })();
+    /* ── Lunar phase via shadow overlay ──────────────────────────────────────
+       Phase cycle driven by progress:
+         0.00 → 0.12  : new moon     (shadow = full coverage, dark)
+         0.12 → 0.35  : crescent     (shadow starts sliding away)
+         0.35 → 0.60  : half moon    (shadow covers left half)
+         0.60 → 0.85  : gibbous      (small shadow sliver on left)
+         0.85 → 1.00  : full moon    (shadow fully removed)
+
+       Technique: a pseudo-ellipse shadow div starts at translateX(0%)
+       (covering the moon) and moves to translateX(100%) (fully off).
+       Additionally we vary the border-radius to mimic the curved terminator.
+    ──────────────────────────────────────────────────────────────────────── */
+    function updateMoonPhase(p) {
+      if (PRM) return;
+      // Map progress 0→1 to a phase 0→4 (5 phases)
+      const phase = Math.min(p * 5, 4.999);
+
+      // Shadow translateX: 0% = full coverage, 120% = fully gone
+      // Goes from 0→120 as phase goes 0→5
+      const tx = (phase / 5) * 120;
+
+      // Border-radius on right side creates the crescent terminator curve:
+      // At new moon: 0% (flat) → crescent: 50% → half: 50% → gibbous: 80% → full: 110% (off-screen)
+      let br;
+      if (phase < 1)      br = 20;                        // new → crescent start
+      else if (phase < 2) br = 20 + (phase - 1) * 60;    // crescent (20→80)
+      else if (phase < 3) br = 80;                        // half moon
+      else if (phase < 4) br = 80 + (phase - 3) * 20;    // gibbous (80→100)
+      else                br = 100;                       // full
+
+      shadow.style.transform    = `translateX(${tx}%)`;
+      shadow.style.borderRadius = `0 ${br}% ${br}% 0`;
+    }
+
+    /* ── Hook into THREE.LoadingManager if/when available ──────────────────── */
+    function hookThreeLoadingManager(mgr) {
+      mgr.onProgress = function (url, loaded, total) {
+        if (total > 0) setProgress(loaded / total);
+      };
+      mgr.onLoad = function () {
+        setProgress(1);
+      };
+    }
+
+    /* Poll for THREE global (loaded lazily after first interaction) */
+    let threeHooked = false;
+    const threePoller = setInterval(function () {
+      if (threeHooked) { clearInterval(threePoller); return; }
+      if (typeof THREE !== 'undefined' && THREE.DefaultLoadingManager) {
+        threeHooked = true;
+        clearInterval(threePoller);
+        hookThreeLoadingManager(THREE.DefaultLoadingManager);
+      }
+    }, 200);
+
+    /* Expose so three/main.js can hook manually: window.__lunaLoaderMgr(mgr) */
+    window.__lunaLoaderMgr = function (mgr) {
+      threeHooked = true;
+      clearInterval(threePoller);
+      hookThreeLoadingManager(mgr);
+    };
+
+    /* Simulate steady progress for assets that don't fire LoadingManager events */
+    (function simulateProgress() {
+      if (PRM) { setProgress(1); return; }
+      const start = performance.now();
+      const MIN_TIME = 4200; // ms before we allow real completion
+      function tick(now) {
+        const elapsed = now - start;
+        const t = Math.min(elapsed / MIN_TIME, 1);
+        // Ease the simulated progress to ~85% — real events take it the rest of the way
+        const simP = 0.85 * (1 - Math.pow(1 - t, 3));
+        if (simP > _progress) setProgress(simP);
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    })();
+
+    /* ── Entrance animation timeline ─────────────────────────────────────── */
+    if (PRM) {
+      loader.classList.add('ldr--visible', 'ldr--content-in');
+    } else {
+      requestAnimationFrame(() => loader.classList.add('ldr--visible'));
+      setTimeout(() => loader.classList.add('ldr--content-in'), 300);
+    }
+
+    /* ── Exit sequence ──────────────────────────────────────────────────── */
+    let exitCalled = false;
+    function exitLoader() {
+      if (exitCalled) return;
+      exitCalled = true;
+
+      // Ensure arc shows 100%
+      setProgress(1);
+
+      if (PRM) {
+        finish();
+        return;
+      }
+
+      // 1) Fade in "Entering Luna's World..." text
+      enterEl.classList.add('ldr-enter--show');
+      statusEl.style.opacity = '0';
+
+      // 2) After 800ms — start fading out entire loader
+      setTimeout(() => {
+        loader.classList.add('ldr--exiting');
+        // 3) After fade (~600ms) — hide and fire lunaReady
+        setTimeout(finish, 650);
+      }, 800);
+    }
+
+    function finish() {
+      loader.style.display = 'none';
+      document.dispatchEvent(new CustomEvent('lunaReady'));
+    }
+
+    /* ── Wait for both minimum time AND page load ─────────────────────────── */
+    const MIN_TIME = PRM ? 0 : 4200;
+    window.LUNA_MIN_TIME = MIN_TIME;
+
+    const minTimer  = new Promise(r => setTimeout(r, MIN_TIME));
+    const pageReady = new Promise(r => {
+      if (document.readyState === 'complete') r();
+      else window.addEventListener('load', r, { once: true });
+    });
+
+    Promise.all([minTimer, pageReady]).then(() => {
+      // Give real progress events a moment to settle
+      setTimeout(exitLoader, 200);
+    });
+
+    /* ── Cycling status text ─────────────────────────────────────────────── */
+    if (!PRM) {
+      const phrases = ['weaving moonlight…', 'gathering stardust…', 'opening the pages…', 'entering the world…'];
+      let idx = 0;
+      setTimeout(function cycle() {
+        statusEl.style.opacity = '0';
+        setTimeout(() => {
+          statusEl.textContent = phrases[idx % phrases.length];
+          idx++;
+          statusEl.style.opacity = '1';
+        }, 200);
+        if (!exitCalled) setTimeout(cycle, 1400);
+      }, 600);
+    }
+
+  }());
   </script>
   <canvas id="webgl-canvas"></canvas>
   <div class="cursor-dot" id="cursor-dot"></div>
