@@ -1652,13 +1652,13 @@ transform: translate(-50%, -50%) scale(1);
 
 /* loader CSS */
 .loader-container {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
+  min-height: 420px;
   background: #0a0a12;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 12px;
+  position: relative;
   overflow: hidden;
   transition: opacity 500ms ease, transform 500ms ease;
 }
@@ -1688,10 +1688,13 @@ transform: translate(-50%, -50%) scale(1);
 
 .moon {
   margin-bottom: 24px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .load-text {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-voice);
   font-style: italic;
   color: #c9c2e8;
   font-size: 16px;
