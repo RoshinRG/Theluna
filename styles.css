@@ -1,4 +1,4 @@
-﻿/*
+/*
    * ─── FONT FACES ──────────────────────────────────────────────────────────────
    * font-display: swap  = show fallback immediately, swap when font arrives
    * Metric overrides on fallback fonts = zero layout shift on swap (fixes CLS)
@@ -1796,15 +1796,19 @@ html.js-enabled .hero-section.spa-visible {
 }
 
 /* ─── Lunar phase shadow overlay ───
-     Starts covering the whole moon (translateX(0%)),
-     JS moves it to the right as progress advances.
-     Border-radius shapes the crescent terminator.
+     Starts covering the whole moon (translateX(0%)) = new moon (dark).
+     JS slides it rightward through 5 phases as loading progresses:
+       new moon → crescent → half → gibbous → full (translateX(120%)).
+     Border-radius on the right side shapes the curved terminator:
+       0%  = flat wall (new moon)
+       50% = perfect ellipse (half moon)
+       90%+ = very bulged (shadow nearly off)
 ─── */
 .ldr-moon__shadow {
   position: absolute;
   inset: 0;
-  background: var(--ldr-bg);   /* matches the page background so it "hides" the moon */
-  border-radius: 0 20% 20% 0;
+  background: var(--ldr-shadow);   /* perfectly matches the intended lunar shadow */
+  border-radius: 0;                /* starts flat — new moon has no terminator curve */
   transform: translateX(0%);
   /* Smooth transition on each rAF update */
   transition: transform 0.35s ease-out, border-radius 0.35s ease-out;

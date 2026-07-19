@@ -94,6 +94,21 @@
   (function () {
     'use strict';
 
+    // #region agent log
+    const _dbgStart = performance.now();
+    const _dbg = (location, message, data, hypothesisId) => {
+      fetch('http://127.0.0.1:7853/ingest/074e6b6f-d7e0-4bfc-a686-7a710138c8a8',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d06613'},body:JSON.stringify({sessionId:'d06613',location,message,data,timestamp:Date.now(),hypothesisId,runId:'pre-fix'})}).catch(()=>{});
+    };
+    _dbg('index.html:loader-init','Loader script started',{readyState:document.readyState,elapsedMs:0},'B');
+    window.addEventListener('DOMContentLoaded', () => {
+      _dbg('index.html:domcontentloaded','DOMContentLoaded fired',{elapsedMs:Math.round(performance.now()-_dbgStart)},'D');
+    }, { once: true });
+    window.addEventListener('load', () => {
+      const nav = performance.getEntriesByType('navigation')[0];
+      _dbg('index.html:window-load','Window load event',{elapsedMs:Math.round(performance.now()-_dbgStart),loadEventEnd:nav?Math.round(nav.loadEventEnd):null,domContentLoaded:nav?Math.round(nav.domContentLoadedEventEnd):null},'D');
+    }, { once: true });
+    // #endregion
+
     const loader   = document.getElementById('luna-loader');
     const arcFill  = document.getElementById('ldr-arc-fill');
     const moonEl   = document.getElementById('ldr-moon');
@@ -140,29 +155,60 @@
          0.85 → 1.00  : full moon    (shadow fully removed)
 
        Technique: a pseudo-ellipse shadow div starts at translateX(0%)
-       (covering the moon) and moves to translateX(100%) (fully off).
-       Additionally we vary the border-radius to mimic the curved terminator.
+       (covering the moon) and moves to translateX(120%) (fully off).
+       Additionally we vary the border-radius to mimic the curved terminator:
+         - 0%  border-radius = flat left wall  (new moon, shadow full)
+         - 50% border-radius = perfect ellipse (half-moon terminator)
+         - 90%+ border-radius = very bulged    (shadow almost gone)
     ──────────────────────────────────────────────────────────────────────── */
     function updateMoonPhase(p) {
       if (PRM) return;
-      // Map progress 0→1 to a phase 0→4 (5 phases)
-      const phase = Math.min(p * 5, 4.999);
 
-      // Shadow translateX: 0% = full coverage, 120% = fully gone
-      // Goes from 0→120 as phase goes 0→5
-      const tx = (phase / 5) * 120;
+      // Linear interpolation helper
+      function lerp(a, b, t) { return a + (b - a) * t; }
 
-      // Border-radius on right side creates the crescent terminator curve:
-      // At new moon: 0% (flat) → crescent: 50% → half: 50% → gibbous: 80% → full: 110% (off-screen)
-      let br;
-      if (phase < 1)      br = 20;                        // new → crescent start
-      else if (phase < 2) br = 20 + (phase - 1) * 60;    // crescent (20→80)
-      else if (phase < 3) br = 80;                        // half moon
-      else if (phase < 4) br = 80 + (phase - 3) * 20;    // gibbous (80→100)
-      else                br = 100;                       // full
+      // Normalise t within a segment [lo, hi] → 0..1, clamped
+      function seg(lo, hi) { return Math.min(Math.max((p - lo) / (hi - lo), 0), 1); }
 
-      shadow.style.transform    = `translateX(${tx}%)`;
-      shadow.style.borderRadius = `0 ${br}% ${br}% 0`;
+      let tx, br;
+
+      if (p < 0.12) {
+        // ── New moon: shadow fully covers the disk ──────────────────────────
+        // tx stays at 0%, br stays at 0% (flat left wall, no curve needed)
+        tx = 0;
+        br = 0;
+
+      } else if (p < 0.35) {
+        // ── Crescent: shadow slides right, right edge curves inward ─────────
+        // tx: 0% → 45%   br: 0% → 50%
+        const t = seg(0.12, 0.35);
+        tx = lerp(0,  45, t);
+        br = lerp(0,  50, t);
+
+      } else if (p < 0.60) {
+        // ── Half moon: shadow covers left half, terminator is nearly vertical
+        // tx: 45% → 65%   br: 50% (hold — perfect ellipse = half)
+        const t = seg(0.35, 0.60);
+        tx = lerp(45, 65, t);
+        br = 50;  // constant — keeps the terminator as a straight vertical line
+
+      } else if (p < 0.85) {
+        // ── Gibbous: small sliver of shadow remains on left ─────────────────
+        // tx: 65% → 90%   br: 50% → 90%
+        const t = seg(0.60, 0.85);
+        tx = lerp(65, 90, t);
+        br = lerp(50, 90, t);
+
+      } else {
+        // ── Full moon: shadow exits completely off the right edge ────────────
+        // tx: 90% → 120%   br: 90% → 120% (over-curved so it slides off clean)
+        const t = seg(0.85, 1.00);
+        tx = lerp(90,  120, t);
+        br = lerp(90,  120, t);
+      }
+
+      shadow.style.transform    = `translateX(${tx.toFixed(2)}%)`;
+      shadow.style.borderRadius = `${br.toFixed(1)}% 0 0 ${br.toFixed(1)}%`;
     }
 
     /* ── Hook into THREE.LoadingManager if/when available ──────────────────── */
@@ -223,6 +269,10 @@
       if (exitCalled) return;
       exitCalled = true;
 
+      // #region agent log
+      _dbg('index.html:exit-loader','exitLoader called',{elapsedMs:Math.round(performance.now()-_dbgStart),progress:_progress,prm:PRM},'B');
+      // #endregion
+
       // Ensure arc shows 100%
       setProgress(1);
 
@@ -244,6 +294,15 @@
     }
 
     function finish() {
+      // #region agent log
+      const resources = performance.getEntriesByType('resource');
+      _dbg('index.html:finish','Loader hidden, lunaReady dispatched',{
+        elapsedMs:Math.round(performance.now()-_dbgStart),
+        resourceCount:resources.length,
+        fontResources:resources.filter(r=>/font|googleapis|gstatic/.test(r.name)).length,
+        scriptResources:resources.filter(r=>/script/.test(r.name)).map(r=>({name:r.name.split('/').pop(),duration:Math.round(r.duration),transferSize:r.transferSize||0}))
+      },'B');
+      // #endregion
       loader.style.display = 'none';
       document.dispatchEvent(new CustomEvent('lunaReady'));
     }
@@ -252,13 +311,32 @@
     const MIN_TIME = PRM ? 0 : 4200;
     window.LUNA_MIN_TIME = MIN_TIME;
 
-    const minTimer  = new Promise(r => setTimeout(r, MIN_TIME));
+    const minTimer  = new Promise(r => setTimeout(() => {
+      // #region agent log
+      _dbg('index.html:min-timer','MIN_TIME timer resolved',{minTimeMs:MIN_TIME,elapsedMs:Math.round(performance.now()-_dbgStart),progress:_progress},'B');
+      // #endregion
+      r();
+    }, MIN_TIME));
     const pageReady = new Promise(r => {
-      if (document.readyState === 'complete') r();
-      else window.addEventListener('load', r, { once: true });
+      if (document.readyState === 'complete') {
+        // #region agent log
+        _dbg('index.html:page-ready','Page already complete on init',{elapsedMs:Math.round(performance.now()-_dbgStart)},'D');
+        // #endregion
+        r();
+      } else {
+        window.addEventListener('load', () => {
+          // #region agent log
+          _dbg('index.html:page-ready','Page load promise resolved',{elapsedMs:Math.round(performance.now()-_dbgStart)},'D');
+          // #endregion
+          r();
+        }, { once: true });
+      }
     });
 
     Promise.all([minTimer, pageReady]).then(() => {
+      // #region agent log
+      _dbg('index.html:ready-both','Both minTimer and pageReady resolved — scheduling exitLoader',{elapsedMs:Math.round(performance.now()-_dbgStart),progress:_progress},'B');
+      // #endregion
       // Give real progress events a moment to settle
       setTimeout(exitLoader, 200);
     });
@@ -606,7 +684,17 @@
       </div>
     </div>
   </div>
-  <script defer src="script.min.js"></script>
+  <script defer src="script.min.js" id="main-script"></script>
+  <script>
+  // #region agent log
+  (function(){
+    const el = document.getElementById('main-script');
+    const _log = (msg, data) => fetch('http://127.0.0.1:7853/ingest/074e6b6f-d7e0-4bfc-a686-7a710138c8a8',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d06613'},body:JSON.stringify({sessionId:'d06613',location:'index.html:main-script',message:msg,data,timestamp:Date.now(),hypothesisId:'A',runId:'pre-fix'})}).catch(()=>{});
+    el.addEventListener('load', () => _log('script.min.js loaded OK',{src:el.src,elapsedMs:Math.round(performance.now())}));
+    el.addEventListener('error', () => _log('script.min.js FAILED to load (404?)',{src:el.src,elapsedMs:Math.round(performance.now())}));
+  })();
+  // #endregion
+  </script>
   <!-- Three.js is loaded dynamically by script.js to eliminate unused JS penalty -->
 </body>
 
