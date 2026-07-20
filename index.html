@@ -457,6 +457,10 @@
         <span class="eyebrow">Poetry</span>
         <h2>Poetry Collection</h2>
         <p class="intro">Enter a constellation of verses created for dreamers and wanderers.</p>
+        <button class="btn-read-verses" onclick="window.openPoemGrid && window.openPoemGrid()" aria-label="Open the poem book reader">
+          <svg width="16" height="16" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M32 6a26 26 0 1 0 0 52 20 20 0 0 1 0-52Z" fill="currentColor"/></svg>
+          Read Verses
+        </button>
       </div>
       <div class="cards-grid">
         <div class="glass-card">
@@ -696,6 +700,329 @@
   // #endregion
   </script>
   <!-- Three.js is loaded dynamically by script.js to eliminate unused JS penalty -->
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       POEM BOOK OVERLAY — floats above Three.js, below cursor/nav
+       Triggered by "Read Verses" button in #poetry section
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div id="poem-overlay" role="dialog" aria-modal="true" aria-label="Luna's Poem Book">
+
+    <!-- ── Grid view ────────────────────────────────────────────────── -->
+    <button class="po-overlay-close" id="po-overlay-close" aria-label="Close poem book">✕ Close</button>
+    <div class="po-grid-view" id="po-grid-view">
+      <div class="po-grid-header">
+        <span class="po-eyebrow">Luna's World · Collected Entries</span>
+        <h2>Verses Left on the Windowsill</h2>
+        <p>Five small pages. Click one to open the book.</p>
+      </div>
+      <div class="po-card-grid" id="po-card-grid"></div>
+    </div>
+
+    <!-- ── Book view ─────────────────────────────────────────────────── -->
+    <div class="po-book-view" id="po-book-view">
+      <button class="po-book-close" id="po-book-close">✕ Close book</button>
+      <div class="po-book-wrap">
+        <div class="po-book-shell">
+          <div class="po-page-left" id="po-left-page"></div>
+          <div class="po-flip-zone">
+            <div class="po-flip-page" id="po-flip-page"></div>
+          </div>
+          <div class="po-spine-shadow"></div>
+        </div>
+      </div>
+      <div class="po-book-controls">
+        <button class="po-nav-btn" id="po-prev-btn" aria-label="Previous poem">‹</button>
+        <div class="po-page-index" id="po-page-index"></div>
+        <button class="po-nav-btn" id="po-next-btn" aria-label="Next poem">›</button>
+      </div>
+    </div>
+
+  </div><!-- /#poem-overlay -->
+
+  <script>
+  /* ════════════════════════════════════════════════════════════════════════
+     Luna's World — Poem Book (embedded overlay)
+     - Floats above Three.js / particle background (z-index 200)
+     - Uses transitionend for page-turns (not setTimeout)
+     - prefers-reduced-motion: opacity crossfade fallback
+  ════════════════════════════════════════════════════════════════════════ */
+  (function () {
+    'use strict';
+
+    /* ── Poem data (exact original text, not regenerated) ─────────────── */
+    const poems = [
+      {
+        title: "Warmth That Burned",
+        glyph: "crescent",
+        body: `The light had finally found its way to that soul.
+She lived within a cage, unaware of the sword she was destined to wield. Her eyes still gleamed with innocence when the clock struck twelve.
+And then, the rain clouds parted.
+A silver light revealed itself to the moon. It was beautiful, yet cold. The cold settled along her spine like winter's fingers.
+Just as the tides answered the moon's call, she answered the call of a place she hoped would finally grant her solace.
+But she was cursed.
+Her blood belonged to the stars, and her soul was made of glass and dust.
+Her comfort had vanished. So had her smile.
+Far in the distance, a small light flickered. A firefly, she thought.
+And for the first time in a long while, she allowed herself to believe in goodness.
+Guided by moonlight, she followed it into the woods.
+The deeper she wandered, the thicker the forest became.
+Then she saw it. Not a firefly. A wildfire.
+The closer she stepped, the heavier the smoke became. It filled her lungs and stole her breath. Her face turned pale, her eyes burned with tears.
+Yet hidden beside the raging flames stood a small bonfire.
+Its warmth was gentle. Enough to comfort her. Not enough to consume her.
+Above, the moon shone brighter than ever, though smoke and clouds veiled its light, much like grief veils the heart.
+She stood between two fires. One that could warm her. One that could destroy her.
+She did not know which she truly needed. Something to quench her thirst. Or something that would leave her completely dry.
+Lost between her thoughts, she slowly lost herself. That hollow feeling returned. It weakened her heart until it became quiet.
+One choice would decide her sky.
+Time moved too quickly as she wavered between paths. That terrible feeling, when the heart wants one thing, yet the soul knows it cannot survive it.
+Her heart was adorned with needles now. Wrapped in thorns. The air became harder to breathe. And there was no turning back.
+The path behind her had closed. The sky had darkened. The fire only burned brighter, believing she would choose it.
+Little did it know, it had hurt her every single time.
+She fell to her knees and prayed for rain. The girl who once longed for warmth now begged for coldness. For emptiness. For relief.
+She stared at her burned hands. At her scarred skin. And whispered;
+Perhaps I should never have come here. Perhaps I was never meant to feel warmth. Perhaps I do not deserve it. Perhaps this is simply too much.
+The bonfire dimmed as it witnessed her tears. The wildfire did not.
+"Why aren't you choosing me?" it asked.
+"You are too much for me," she replied. And turned away.
+Only then did the wildfire truly see her scars. See what its flames had done. See how much she had suffered.
+"Sorry—"
+But before the apology could reach her, she collapsed.
+The fire lost control. It rushed toward her from every direction, surrounding her completely. And it burned her alive.
+Thus ended a noble soul. A soul who only wished to become someone worth looking up to. A soul who searched endlessly for the warmth she had always lacked.
+Perhaps, in another life, the fire would not consume her. Perhaps it would heal her frostbitten hands. Guide her through her darkest nights. And teach her that warmth was never meant to hurt.
+Leaving the final page blank, just in case…`
+      },
+      {
+        title: "Whispers of the Earth",
+        glyph: "gibbous",
+        body: `The first time the wind whispered my name, I thought it was lying.
+No one speaks to girls like me. Not anymore. Not in a world where rivers are bought and bottled, and the sky is just a faded ceiling no one looks at.
+But the truth is: I was born remembering.
+The trees still whispered to me. And they had not forgotten what the world chose to erase.
+But that morning on the fourth day of Ember Season I felt it. The earth shivered under my bare feet. And I heard it again.
+Lyra.
+The voice came from the roots.
+I live in a place they call the Hollow. It's the last patch of land they haven't burned or built over.
+They left it alone because it scared them. Because here, the air still remembers.
+They say the world died years ago. That climate change swallowed the oceans, cracked the soil, and ruined every chance we had.
+But that's not true. The world didn't die. It simply stopped talking to us. Until now.
+I don't know why the Hollow chose me. Maybe because I listen. Maybe because when I close my eyes, I can feel the ghosts of extinct birds nesting in my ribcage.
+My grandmother once told me, "When the trees remember your name, child, it means you're part of their last story."
+So I waited. And the Hollow showed me what they buried.
+Beneath the moss, under the cracked bark of an ancient oak, I found it: a library made of soil. Each leaf held a memory. Each root, a name.
+The oceans, once blue, cried through the stones.
+There were no heroes here. No shining machines. Just a girl with scars on her palms and questions on her tongue.
+I asked the wind why the world turned away from us. And it said:
+Because you traded your skies for smoke. Your rivers for noise. Your truth for progress.
+And then it asked me something I didn't expect. It asked me to give up my voice. To offer the one thing I still had — belief. Belief that this Earth still wants us. Still aches for us. Still waits.
+I knelt down. I pressed my hand to the roots. And I whispered:
+I remember you.
+The trees wept. The sky cracked open. And for the first time in centuries, the soil sighed in relief.
+I didn't save the world. I simply reminded it of who we used to be.`
+      },
+      {
+        title: "Mellow Glow From Within",
+        glyph: "full",
+        body: `The stars did not guide her. They simply watched as she learned to glow on her own.
+The stars within her guided her. They did not speak, nor did they interfere. They simply watched quietly as she learned to glow on her own.
+Most stars do not carry their own light. They reflect what is given to them, borrowing brilliance from something greater.
+But when everything around her turned dark, she chose differently.
+She did not search for light to reflect. She did not wait for the sun. Instead, she created her own.
+A glow that did not depend on anything — a light that did not fade with the absence of others.
+It was softer at first, almost fragile, but it grew, day by day, stronger than anything she had ever known.
+Even the stars seemed to pause, watching her in quiet awe, wondering how she continued to shine without borrowing anyone's fire.
+She became her own sun. Her own galaxy.
+And with that quiet, unwavering glow, she walked forward toward her destiny.`
+      },
+      {
+        title: "Scars That Shine",
+        glyph: "crescent-r",
+        body: `The moon hung low with quiet secrets that only she could hear.
+There is an ease in the sky — a scarred star that still shines.
+The sun burns bright, but the moon hums with secrets, soft and unspoken, meant only for those who truly observe.
+It is not loud. It does not call for attention. Only she could hear it — not with her ears, but with something deeper.
+The moon appears when the world slows down, becoming a quiet companion to those who seek silence rather than sound.
+It shines with the stars, reminding us that even something distant, something scarred, can still glow with grace.
+She saw herself in the moon. Sometimes clearly, sometimes not at all. But she always found comfort in its scars.
+The moon never spoke aloud, yet she heard it with her heart.`
+      },
+      {
+        title: "A Love That Was Never Heard",
+        glyph: "new",
+        body: `She kept looking at the silent space, hoping it would speak her name.
+She laughed with the world, but when he appeared, her voice faded into quiet. As if her existence softened in his presence.
+She heard his heart belonged elsewhere. And something within her dimmed, like a star losing its light.
+He never knew there was a girl who quietly shaped herself around his existence, willing to change even the smallest parts of her world just to feel closer to him.
+She built galaxies in her mind, filled with moments that only existed in her imagination.
+Somewhere, the one he loved would live those moments, without ever knowing they once belonged to her dreams.
+Even the things she feared, even the things that unsettled her, she would have faced them, if it meant standing beside him.
+Somewhere along the way, her feelings had started to depend on him for meaning.
+And so, she remained a distant star — unseen, unspoken — loving him from a universe he would never look back at.`
+      }
+    ];
+
+    /* ── Moon glyph SVG helpers ────────────────────────────────────────── */
+    function moonSVG(kind, fgColor, bgColor) {
+      const fg = fgColor || '#845EC2';
+      const bg = bgColor || '#D5CABD';
+      const paths = {
+        'new':        `<circle cx="32" cy="32" r="26" fill="none" stroke="${fg}" stroke-width="1.6"/>`,
+        'crescent':   `<path d="M32 6a26 26 0 1 0 0 52 20 20 0 0 1 0-52Z" fill="${fg}"/>`,
+        'crescent-r': `<path d="M32 6a26 26 0 1 1 0 52 20 20 0 0 0 0-52Z" fill="${fg}"/>`,
+        'gibbous':    `<circle cx="32" cy="32" r="26" fill="${fg}"/><circle cx="20" cy="32" r="22" fill="${bg}"/>`,
+        'full':       `<circle cx="32" cy="32" r="26" fill="${fg}"/>`
+      };
+      return `<svg class="po-moon-glyph" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${paths[kind] || paths.full}</svg>`;
+    }
+
+    function cardGlyphSVG(kind) {
+      const fg = '#845EC2';
+      const bg = '#2a2535';   // approximate dark card bg for gibbous cutout
+      const paths = {
+        'new':        `<circle cx="10" cy="10" r="8" fill="none" stroke="${fg}" stroke-width="1.4"/>`,
+        'crescent':   `<path d="M10 2a8 8 0 1 0 0 16 6 6 0 0 1 0-16Z" fill="${fg}"/>`,
+        'crescent-r': `<path d="M10 2a8 8 0 1 1 0 16 6 6 0 0 0 0-16Z" fill="${fg}"/>`,
+        'gibbous':    `<circle cx="10" cy="10" r="8" fill="${fg}"/><circle cx="6" cy="10" r="7" fill="${bg}"/>`,
+        'full':       `<circle cx="10" cy="10" r="8" fill="${fg}"/>`
+      };
+      return `<svg class="po-glyph" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${paths[kind] || paths.full}</svg>`;
+    }
+
+    /* ── Build grid ────────────────────────────────────────────────────── */
+    const cardGrid = document.getElementById('po-card-grid');
+    poems.forEach(function (p, i) {
+      const firstLine = p.body.trim().split('\n')[0];
+      const card = document.createElement('div');
+      card.className = 'po-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', 'Open poem: ' + p.title);
+      card.innerHTML =
+        cardGlyphSVG(p.glyph) +
+        '<div class="po-card-num">Entry ' + String(i + 1).padStart(2, '0') + '</div>' +
+        '<h3>' + p.title + '</h3>' +
+        '<div class="po-teaser">' + firstLine + '</div>';
+      card.addEventListener('click', function () { openBook(i); });
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBook(i); }
+      });
+      cardGrid.appendChild(card);
+    });
+
+    /* ── DOM refs ──────────────────────────────────────────────────────── */
+    const overlay      = document.getElementById('poem-overlay');
+    const gridView     = document.getElementById('po-grid-view');
+    const bookView     = document.getElementById('po-book-view');
+    const leftPage     = document.getElementById('po-left-page');
+    const flipPage     = document.getElementById('po-flip-page');
+    const pageIndex    = document.getElementById('po-page-index');
+    const prevBtn      = document.getElementById('po-prev-btn');
+    const nextBtn      = document.getElementById('po-next-btn');
+    const bookCloseBtn = document.getElementById('po-book-close');
+    const overlayClose = document.getElementById('po-overlay-close');
+
+    const PRM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let current  = 0;
+    let animating = false;
+
+    /* ── Render a spread ───────────────────────────────────────────────── */
+    function renderSpread(i) {
+      var p = poems[i];
+
+      leftPage.innerHTML =
+        '<div class="po-entry-num">Entry ' + String(i + 1).padStart(2, '0') + ' of ' + poems.length + '</div>' +
+        moonSVG(p.glyph, '#845EC2', '#D5CABD') +
+        '<h3>' + p.title + '</h3>' +
+        '<div class="po-flourish"></div>';
+
+      var firstChar = p.body.trim()[0];
+      var rest      = p.body.trim().slice(1);
+      flipPage.innerHTML =
+        '<div class="po-poem-body"><p>' +
+        '<span class="po-dropcap">' + firstChar + '</span>' + rest +
+        '</p></div>';
+      flipPage.scrollTop = 0;
+
+      pageIndex.textContent = 'Page ' + (i + 1) + ' / ' + poems.length;
+      prevBtn.disabled = (i === 0);
+      nextBtn.disabled = (i === poems.length - 1);
+    }
+
+    /* ── Open / close grid overlay ─────────────────────────────────────── */
+    function openPoemGrid() {
+      overlay.classList.add('is-open');
+      gridView.style.display = 'block';
+      bookView.classList.remove('is-open');
+      overlayClose.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      overlayClose.focus();
+    }
+
+    function closePoemOverlay() {
+      overlay.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+
+    /* ── Open book at a specific entry ─────────────────────────────────── */
+    function openBook(i) {
+      current = i;
+      renderSpread(current);
+      gridView.style.display = 'none';
+      overlayClose.style.display = 'none';
+      bookView.classList.add('is-open');
+      bookCloseBtn.focus();
+    }
+
+    function closeBook() {
+      bookView.classList.remove('is-open');
+      gridView.style.display = 'block';
+      overlayClose.style.display = 'flex';
+      overlayClose.focus();
+    }
+
+    /* ── Page-turn (transitionend-driven, not setTimeout) ──────────────── */
+    function turn(dir) {
+      if (animating) return;
+      var next = current + dir;
+      if (next < 0 || next >= poems.length) return;
+
+      animating = true;
+      flipPage.classList.add('turning');
+
+      flipPage.addEventListener('transitionend', function onTurnEnd() {
+        flipPage.removeEventListener('transitionend', onTurnEnd);
+        current = next;
+        renderSpread(current);
+        flipPage.classList.remove('turning');
+        void flipPage.offsetWidth;   // force reflow so next flip starts from 0
+        animating = false;
+      }, { once: true });
+    }
+
+    /* ── Event listeners ───────────────────────────────────────────────── */
+    overlayClose.addEventListener('click', closePoemOverlay);
+    bookCloseBtn.addEventListener('click', closeBook);
+    prevBtn.addEventListener('click', function () { turn(-1); });
+    nextBtn.addEventListener('click', function () { turn(1); });
+
+    document.addEventListener('keydown', function (e) {
+      if (!overlay.classList.contains('is-open')) return;
+      if (e.key === 'Escape') {
+        if (bookView.classList.contains('is-open')) closeBook();
+        else closePoemOverlay();
+      }
+      if (bookView.classList.contains('is-open')) {
+        if (e.key === 'ArrowRight') turn(1);
+        if (e.key === 'ArrowLeft')  turn(-1);
+      }
+    });
+
+    /* ── Expose opener so the "Read Verses" button can call it ─────────── */
+    window.openPoemGrid = openPoemGrid;
+
+  }());
+  </script>
 </body>
 
 </html>
