@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -706,50 +706,47 @@
        Triggered by "Read Verses" button in #poetry section
   ══════════════════════════════════════════════════════════════════════ -->
   <div id="poem-overlay" role="dialog" aria-modal="true" aria-label="Luna's Poem Book">
+    <div class="scene">
 
-    <!-- ── Grid view ────────────────────────────────────────────────── -->
-    <button type="button" class="po-overlay-close" id="po-overlay-close" aria-label="Close poem book">✕ Close</button>
-    <div class="po-grid-view" id="po-grid-view">
-      <div class="po-grid-header">
-        <span class="po-eyebrow">Luna's World · Collected Entries</span>
-        <h2>Verses Left on the Windowsill</h2>
-        <p>Five small pages. Click one to open the book.</p>
+      <!-- ═══════════════════ GRID VIEW ═══════════════════ -->
+      <div id="grid-view">
+        <div class="grid-header">
+          <div class="eyebrow">Luna's World · Collected Entries</div>
+          <h1>Verses Left on the Windowsill</h1>
+          <p>Five small pages. Click one to open the book.</p>
+        </div>
+        <div class="card-grid" id="card-grid"></div>
       </div>
-      <div class="po-card-grid" id="po-card-grid"></div>
-    </div>
 
-    <!-- ── Book view ─────────────────────────────────────────────────── -->
-    <div class="po-book-view" id="po-book-view">
-      <button type="button" class="po-book-close" id="po-book-close">✕ Close book</button>
-      <div class="po-book-wrap">
-        <div class="po-book-shell">
-          <div class="po-page-left" id="po-left-page"></div>
-          <div class="po-flip-zone">
-            <div class="po-flip-page" id="po-flip-page"></div>
+      <!-- ═══════════════════ BOOK VIEW ═══════════════════ -->
+      <div id="book-view">
+        <button type="button" class="close-btn" id="closeBtn">✕ Close book</button>
+        <div class="book-wrap">
+          <div class="book-shell">
+            <div class="page-static left" id="leftPage"></div>
+            <div class="flip-zone">
+              <div class="flip-page" id="flipPage"></div>
+            </div>
+            <div class="spine-shadow"></div>
           </div>
-          <div class="po-spine-shadow"></div>
+        </div>
+        <div class="book-controls">
+          <button type="button" class="nav-btn" id="prevBtn" aria-label="Previous poem">‹</button>
+          <div class="page-index" id="pageIndex"></div>
+          <button type="button" class="nav-btn" id="nextBtn" aria-label="Next poem">›</button>
         </div>
       </div>
-      <div class="po-book-controls">
-        <button type="button" class="po-nav-btn" id="po-prev-btn" aria-label="Previous poem">‹</button>
-        <div class="po-page-index" id="po-page-index"></div>
-        <button type="button" class="po-nav-btn" id="po-next-btn" aria-label="Next poem">›</button>
-      </div>
-    </div>
 
+    </div>
   </div><!-- /#poem-overlay -->
 
   <script>
   /* ════════════════════════════════════════════════════════════════════════
      Luna's World — Poem Book (embedded overlay)
-     - Floats above Three.js / particle background (z-index 200)
-     - Uses transitionend for page-turns (not setTimeout)
-     - prefers-reduced-motion: opacity crossfade fallback
+     Floats above Three.js background (z-index 200).
+     Uses transitionend for page-turns. prefers-reduced-motion: crossfade.
   ════════════════════════════════════════════════════════════════════════ */
   (function () {
-    'use strict';
-
-    /* ── Poem data (exact original text, not regenerated) ─────────────── */
     const poems = [
       {
         title: "Warmth That Burned",
@@ -862,7 +859,6 @@ And so, she remained a distant star — unseen, unspoken — loving him from a u
       }
     ];
 
-    /* ── Moon glyph SVG helpers ────────────────────────────────────────── */
     function moonSVG(kind, fgColor, bgColor) {
       const fg = fgColor || '#845EC2';
       const bg = bgColor || '#D5CABD';
@@ -873,12 +869,12 @@ And so, she remained a distant star — unseen, unspoken — loving him from a u
         'gibbous':    `<circle cx="32" cy="32" r="26" fill="${fg}"/><circle cx="20" cy="32" r="22" fill="${bg}"/>`,
         'full':       `<circle cx="32" cy="32" r="26" fill="${fg}"/>`
       };
-      return `<svg class="po-moon-glyph" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${paths[kind] || paths.full}</svg>`;
+      return `<svg class="moon-glyph" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${paths[kind] || paths.full}</svg>`;
     }
 
     function cardGlyphSVG(kind) {
       const fg = '#845EC2';
-      const bg = '#2a2535';   // approximate dark card bg for gibbous cutout
+      const bg = '#2e2836';
       const paths = {
         'new':        `<circle cx="10" cy="10" r="8" fill="none" stroke="${fg}" stroke-width="1.4"/>`,
         'crescent':   `<path d="M10 2a8 8 0 1 0 0 16 6 6 0 0 1 0-16Z" fill="${fg}"/>`,
@@ -886,77 +882,63 @@ And so, she remained a distant star — unseen, unspoken — loving him from a u
         'gibbous':    `<circle cx="10" cy="10" r="8" fill="${fg}"/><circle cx="6" cy="10" r="7" fill="${bg}"/>`,
         'full':       `<circle cx="10" cy="10" r="8" fill="${fg}"/>`
       };
-      return `<svg class="po-glyph" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${paths[kind] || paths.full}</svg>`;
+      return `<svg class="glyph" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${paths[kind] || paths.full}</svg>`;
     }
 
-    /* ── Build grid ────────────────────────────────────────────────────── */
-    const cardGrid = document.getElementById('po-card-grid');
-    poems.forEach(function (p, i) {
+    const grid = document.getElementById('card-grid');
+    poems.forEach((p, i) => {
       const firstLine = p.body.trim().split('\n')[0];
       const card = document.createElement('div');
-      card.className = 'po-card';
+      card.className = 'poem-card';
       card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-label', 'Open poem: ' + p.title);
-      card.innerHTML =
-        cardGlyphSVG(p.glyph) +
-        '<div class="po-card-num">Entry ' + String(i + 1).padStart(2, '0') + '</div>' +
-        '<h3>' + p.title + '</h3>' +
-        '<div class="po-teaser">' + firstLine + '</div>';
-      card.addEventListener('click', function () { openBook(i); });
-      card.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openBook(i); }
-      });
-      cardGrid.appendChild(card);
+      card.setAttribute('aria-label', `Open poem: ${p.title}`);
+      card.innerHTML = `
+        <div class="glyph">${cardGlyphSVG(p.glyph)}</div>
+        <div class="num">Entry ${String(i + 1).padStart(2, '0')}</div>
+        <h3>${p.title}</h3>
+        <div class="teaser">${firstLine}</div>
+      `;
+      card.addEventListener('click', () => openBook(i));
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openBook(i); });
+      grid.appendChild(card);
     });
 
-    /* ── DOM refs ──────────────────────────────────────────────────────── */
-    const overlay      = document.getElementById('poem-overlay');
-    const gridView     = document.getElementById('po-grid-view');
-    const bookView     = document.getElementById('po-book-view');
-    const leftPage     = document.getElementById('po-left-page');
-    const flipPage     = document.getElementById('po-flip-page');
-    const pageIndex    = document.getElementById('po-page-index');
-    const prevBtn      = document.getElementById('po-prev-btn');
-    const nextBtn      = document.getElementById('po-next-btn');
-    const bookCloseBtn = document.getElementById('po-book-close');
-    const overlayClose = document.getElementById('po-overlay-close');
-
     const PRM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let current  = 0;
-    let animating = false;
+    let current = 0, animating = false;
 
-    /* ── Render a spread ───────────────────────────────────────────────── */
+    const overlay  = document.getElementById('poem-overlay');
+    const gridView = document.getElementById('grid-view');
+    const bookView = document.getElementById('book-view');
+    const leftPage = document.getElementById('leftPage');
+    const flipPage = document.getElementById('flipPage');
+    const pageIndex = document.getElementById('pageIndex');
+    const prevBtn  = document.getElementById('prevBtn');
+    const nextBtn  = document.getElementById('nextBtn');
+    const closeBtn = document.getElementById('closeBtn');
+
     function renderSpread(i) {
-      var p = poems[i];
-
-      leftPage.innerHTML =
-        '<div class="po-entry-num">Entry ' + String(i + 1).padStart(2, '0') + ' of ' + poems.length + '</div>' +
-        moonSVG(p.glyph, '#845EC2', '#D5CABD') +
-        '<h3>' + p.title + '</h3>' +
-        '<div class="po-flourish"></div>';
-
-      var firstChar = p.body.trim()[0];
-      var rest      = p.body.trim().slice(1);
-      flipPage.innerHTML =
-        '<div class="po-poem-body"><p>' +
-        '<span class="po-dropcap">' + firstChar + '</span>' + rest +
-        '</p></div>';
+      const p = poems[i];
+      leftPage.innerHTML = `
+        <div class="num">Entry ${String(i + 1).padStart(2, '0')} of ${poems.length}</div>
+        ${moonSVG(p.glyph, '#845EC2', '#D5CABD')}
+        <h2>${p.title}</h2>
+        <div class="flourish"></div>
+      `;
+      const firstChar = p.body.trim()[0];
+      const rest      = p.body.trim().slice(1);
+      flipPage.innerHTML = `<div class="poem-body"><p><span class="dropcap">${firstChar}</span>${rest}</p></div>`;
       flipPage.scrollTop = 0;
-
-      pageIndex.textContent = 'Page ' + (i + 1) + ' / ' + poems.length;
-      prevBtn.disabled = (i === 0);
-      nextBtn.disabled = (i === poems.length - 1);
+      pageIndex.textContent = `Page ${i + 1} / ${poems.length}`;
+      prevBtn.disabled = i === 0;
+      nextBtn.disabled = i === poems.length - 1;
     }
 
-    /* ── Open / close grid overlay ─────────────────────────────────────── */
     function openPoemGrid() {
       overlay.classList.add('is-open');
       gridView.style.display = 'block';
-      bookView.classList.remove('is-open');
-      overlayClose.style.display = 'flex';
+      bookView.style.display = 'none';
       document.body.style.overflow = 'hidden';
-      overlayClose.focus();
     }
 
     function closePoemOverlay() {
@@ -964,63 +946,51 @@ And so, she remained a distant star — unseen, unspoken — loving him from a u
       document.body.style.overflow = '';
     }
 
-    /* ── Open book at a specific entry ─────────────────────────────────── */
     function openBook(i) {
       current = i;
       renderSpread(current);
       gridView.style.display = 'none';
-      overlayClose.style.display = 'none';
-      bookView.classList.add('is-open');
-      bookCloseBtn.focus();
+      bookView.style.display = 'flex';
+      closeBtn.focus();
     }
 
     function closeBook() {
-      bookView.classList.remove('is-open');
+      bookView.style.display = 'none';
       gridView.style.display = 'block';
-      overlayClose.style.display = 'flex';
-      overlayClose.focus();
     }
 
-    /* ── Page-turn (transitionend-driven, not setTimeout) ──────────────── */
     function turn(dir) {
       if (animating) return;
-      var next = current + dir;
+      const next = current + dir;
       if (next < 0 || next >= poems.length) return;
-
       animating = true;
       flipPage.classList.add('turning');
-
       flipPage.addEventListener('transitionend', function onTurnEnd() {
         flipPage.removeEventListener('transitionend', onTurnEnd);
         current = next;
         renderSpread(current);
         flipPage.classList.remove('turning');
-        void flipPage.offsetWidth;   // force reflow so next flip starts from 0
+        void flipPage.offsetWidth;
         animating = false;
       }, { once: true });
     }
 
-    /* ── Event listeners ───────────────────────────────────────────────── */
-    overlayClose.addEventListener('click', closePoemOverlay);
-    bookCloseBtn.addEventListener('click', closeBook);
-    prevBtn.addEventListener('click', function () { turn(-1); });
-    nextBtn.addEventListener('click', function () { turn(1); });
+    closeBtn.addEventListener('click', closeBook);
+    prevBtn.addEventListener('click', () => turn(-1));
+    nextBtn.addEventListener('click', () => turn(1));
 
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', e => {
       if (!overlay.classList.contains('is-open')) return;
-      if (e.key === 'Escape') {
-        if (bookView.classList.contains('is-open')) closeBook();
-        else closePoemOverlay();
-      }
-      if (bookView.classList.contains('is-open')) {
+      if (bookView.style.display === 'flex') {
         if (e.key === 'ArrowRight') turn(1);
         if (e.key === 'ArrowLeft')  turn(-1);
+        if (e.key === 'Escape')     closeBook();
+      } else {
+        if (e.key === 'Escape') closePoemOverlay();
       }
     });
 
-    /* ── Expose opener so the "Read Verses" button can call it ─────────── */
     window.openPoemGrid = openPoemGrid;
-
   }());
   </script>
 </body>
