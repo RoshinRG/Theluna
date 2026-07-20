@@ -11,12 +11,11 @@ A magical, single-page author universe built for **G Daffini Shiyalin (Luna)** �
 ### Core Experience
 - **Single Page Application (SPA)** — Client-side hash routing (`#home`, `#books`, `#poetry`, `#projects`, `#contact`) swaps views instantly without page reloads.
 - **Cosmic Loading Screen** — A pulsing moon glyph with an animated progress bar greets visitors while assets load, then fades out gracefully.
-- **Expandable Bento Grid Modal** — Click any book or poetry card to open a smooth, scale-animated modal with cover art, metadata, and action links. Closes via Escape, backdrop click, or the × button.
+- **Immersive Poetry Reader** — A dedicated full-screen book view with page-flipping animations and integrated **Text-to-Speech (TTS)**, allowing readers to listen to Luna's verses.
+- **Expandable Bento Grid Modal** — Click any book or project card to open a smooth, scale-animated modal with cover art, metadata, and action links. Closes via Escape, backdrop click, or the × button.
 
 ### Visual Design
-- **Cosmic Design System** — Two curated palettes:
-  - *Discreet Palette*: Deep purples (`#845EC2`), mid-tones (`#9B89B3`), and warm taupe (`#D5CABD`) for an immersive night-sky atmosphere.
-  - *Grey Friends Palette*: Soft, muted typography that glows against the dark backdrop.
+- **Cosmic Design System** — Curated palettes featuring deep purples (`#845EC2`), mid-tones (`#9B89B3`), warm taupe (`#D5CABD`), and soft cream/beige for an immersive night-sky atmosphere.
 - **Glassmorphism UI** — Translucent, frosted-glass cards with `backdrop-filter: blur()`, subtle hover lifts, and glowing borders.
 - **Custom Cursor** — A dual-element cursor (dot + glow) that follows the mouse and scales up when hovering over interactive elements. Gracefully falls back to default on touch devices.
 - **Ambient Navigation** — A dynamic spotlight follows the mouse across the nav bar, with an ambient glowing underline tracking the active section.
@@ -26,25 +25,17 @@ A full-page Three.js canvas renders behind all content, creating a living cosmic
 
 | Module | Description |
 |--------|-------------|
-| **Starfield** | 1,500 twinkling stars spread across a 4,000-unit sphere with shader-based twinkle animation. |
+| **Starfield** | Twinkling stars spread across a sphere with shader-based twinkle animation. |
 | **HeroMoon** | A textured, Fresnel-lit 3D moon sphere that maps to the DOM hero section with auto-rotation. |
 | **Nebula** | A full-screen FBM noise shader creating drifting, colour-shifting cosmic clouds. |
-| **Sparkles** | 150 warm floating particles that rise infinitely with gentle horizontal sway. |
-| **ShootingStar** | 20 simultaneous shooting stars raining diagonally across the screen. |
-| **CursorTrail** | A 25-point particle trail that follows the mouse cursor in 3D space. |
+| **Sparkles** | Warm floating particles that rise infinitely with gentle horizontal sway. |
+| **ShootingStar** | Simultaneous shooting stars raining diagonally across the screen. |
+| **CursorTrail** | A 3D particle trail following the mouse cursor. |
 | **BookCards** | Shader-based glowing edges on book cards with 3D tilt on mouse hover. |
 
-### ASTRA — AI Chat Assistant
-A floating chat widget powered by the **NVIDIA NIM API** (Gemma 4 31B model with thinking enabled):
-- Cosmic, poetic personality tuned to Luna's brand.
-- Server-side proxy (`api/astra.js`) to protect the API key.
-- IP-based rate limiting (5 requests/minute).
-- 15-second timeout with graceful error messages.
-- `<think>` tag stripping for clean responses.
-- Typing indicator animation while awaiting a reply.
-
-### Animated Social Links
-3D flip-card animations with spring physics on hover, featuring tooltips for Email and Wattpad.
+### Functional Integrations
+- **ASTRA (AI Chat Assistant)**: A floating chat widget powered by the **NVIDIA NIM API** (Gemma 4 31B model). Features a cosmic, poetic personality tuned to Luna's brand, typing indicators, and markdown formatting.
+- **Contact Form**: Fully functional and serverless, powered by **Google Apps Script**. Messages are sent directly without requiring a dedicated backend database.
 
 ---
 
@@ -66,9 +57,10 @@ This project adheres to a **zero-build-step philosophy**, focusing on raw browse
 | Structure | HTML5 (semantic) + Responsive `<picture>` tags |
 | Styling | Vanilla CSS3 — custom properties, Flexbox/Grid, glassmorphism |
 | Logic | Vanilla JavaScript — DOM manipulation, IntersectionObserver, hash-based SPA routing |
-| 3D Graphics | Three.js r160 (loaded via import map — no bundler required) |
+| 3D Graphics | Three.js (loaded dynamically via lazy imports — no bundler required) |
 | AI Backend | Serverless function (`api/astra.js`) proxying to NVIDIA NIM API |
-| Fonts | Google Fonts — Cormorant Garamond & Inter (Inline `@font-face` with `font-display: optional`) |
+| Contact API | Google Apps Script Web App |
+| Fonts | Google Fonts — Cormorant Garamond & Outfit/Inter (Inline `@font-face`) |
 
 ---
 
@@ -78,7 +70,7 @@ This project adheres to a **zero-build-step philosophy**, focusing on raw browse
 The Luna/
 ├── index.html          # Main HTML document with all SPA sections
 ├── styles.css          # Complete design system, animations, and responsive rules
-├── script.js           # SPA routing, cursor logic, loading screen, ASTRA chat, modal
+├── script.js           # SPA routing, cursor logic, ASTRA chat, TTS Poetry reader, modals
 ├── .env.example        # Template for NVIDIA API key
 ├── README.md           # Project documentation (you are here)
 │
@@ -86,13 +78,7 @@ The Luna/
 │   └── astra.js        # Serverless proxy for NVIDIA NIM API with rate limiting
 │
 ├── assets/
-│   ├── EIGHTEEN.png              # Upcoming poem cover
-│   ├── Library of stars.png      # Project cover
-│   ├── Moonlit Journals.png      # Project cover
-│   ├── She_Became_In_Silence.png # Poetry collection cover
-│   ├── The Hidden Bloodline.png  # Book cover
-│   ├── Warmth_That_Burned.png    # Poetry collection cover
-│   └── Whispers_of_Earth.png     # Poetry collection cover
+│   └── optimized/      # Next-gen WebP images and book covers
 │
 └── three/
     ├── main.js          # CosmicApp — scene, camera, renderer, and animation loop
@@ -124,21 +110,17 @@ npx live-server --port=3100
 Then open `http://localhost:3100` in your web browser.
 
 
-### Setting Up ASTRA (AI Chat)
+### Setting Up Integrations
 
+#### ASTRA (AI Chat)
 The ASTRA widget requires an NVIDIA NIM API key served via a serverless proxy:
-
-1. Copy the environment template:
-   ```bash
-   cp .env.example .env
-   ```
-2. Add your NVIDIA API key to `.env`:
-   ```
-   NVIDIA_API_KEY=your_key_here
-   ```
+1. Copy the environment template: `cp .env.example .env`
+2. Add your NVIDIA API key to `.env`.
 3. Deploy the `api/astra.js` function to a serverless platform (e.g., Vercel) that supports environment variables.
 
-> **Note:** Without the API key configured, the chat widget will still load — it will simply show a friendly error message when a user tries to send a message.
+#### Contact Form
+1. Deploy a Google Apps Script that accepts POST requests and forwards emails.
+2. Update the `googleScriptUrl` variable in `script.js` with your deployed Web App URL.
 
 ---
 
@@ -146,8 +128,8 @@ The ASTRA widget requires an NVIDIA NIM API key served via a serverless proxy:
 
 | Typeface | Usage | Feel |
 |----------|-------|------|
-| **Cormorant Garamond** (Serif) | Headings, eyebrows, decorative text | Classic, literary elegance |
-| **Inter** (Sans-Serif) | Body text, buttons, UI elements | Clean, modern readability |
+| **Cormorant Garamond** (Serif) | Headings, eyebrows, decorative text, poetry verses | Classic, literary elegance |
+| **Outfit / Inter** (Sans-Serif) | Body text, buttons, UI elements | Clean, modern readability |
 
 ---
 
@@ -155,11 +137,10 @@ The ASTRA widget requires an NVIDIA NIM API key served via a serverless proxy:
 
 - **ARIA Attributes** — `aria-expanded`, `aria-controls`, and `aria-label` on interactive widgets.
 - **Inert Attribute** — Traps focus and prevents interaction with hidden panels (ASTRA chat, expandable modal).
-- **Keyboard Navigation** — Escape key closes modals and chat panels.
-- **Touch Device Fallback** — Custom cursor is automatically hidden on touch devices via `(hover: none) and (pointer: coarse)` media query.
-- **Reduced Motion** — `prefers-reduced-motion: reduce` disables all animations and transitions for users who prefer them off.
-- **XSS Protection** — All user input in the ASTRA chat is sanitised via `escapeHTML()` before rendering.
-- **Meta Tags** — Open Graph (`og:`) and Twitter Card meta tags for rich social sharing previews.
+- **Keyboard Navigation** — Escape key closes modals, books, and chat panels.
+- **Touch Device Fallback** — Custom cursor is automatically hidden on touch devices.
+- **Reduced Motion** — `prefers-reduced-motion: reduce` disables all animations and transitions.
+- **XSS Protection** — All user input in the ASTRA chat is sanitised.
 - **Semantic HTML** — Proper heading hierarchy, `<main>`, `<nav>`, `<section>`, and `<footer>` elements.
 
 ---
