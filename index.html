@@ -457,7 +457,7 @@
         <span class="eyebrow">Poetry</span>
         <h2>Poetry Collection</h2>
         <p class="intro">Enter a constellation of verses created for dreamers and wanderers.</p>
-        <button class="btn-read-verses" onclick="window.openPoemGrid && window.openPoemGrid()" aria-label="Open the poem book reader">
+        <button type="button" class="btn-read-verses" onclick="window.openPoemGrid && window.openPoemGrid()" aria-label="Open the poem book reader">
           <svg width="16" height="16" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M32 6a26 26 0 1 0 0 52 20 20 0 0 1 0-52Z" fill="currentColor"/></svg>
           Read Verses
         </button>
@@ -708,7 +708,7 @@
   <div id="poem-overlay" role="dialog" aria-modal="true" aria-label="Luna's Poem Book">
 
     <!-- ── Grid view ────────────────────────────────────────────────── -->
-    <button class="po-overlay-close" id="po-overlay-close" aria-label="Close poem book">✕ Close</button>
+    <button type="button" class="po-overlay-close" id="po-overlay-close" aria-label="Close poem book">✕ Close</button>
     <div class="po-grid-view" id="po-grid-view">
       <div class="po-grid-header">
         <span class="po-eyebrow">Luna's World · Collected Entries</span>
@@ -720,7 +720,7 @@
 
     <!-- ── Book view ─────────────────────────────────────────────────── -->
     <div class="po-book-view" id="po-book-view">
-      <button class="po-book-close" id="po-book-close">✕ Close book</button>
+      <button type="button" class="po-book-close" id="po-book-close">✕ Close book</button>
       <div class="po-book-wrap">
         <div class="po-book-shell">
           <div class="po-page-left" id="po-left-page"></div>
@@ -731,9 +731,9 @@
         </div>
       </div>
       <div class="po-book-controls">
-        <button class="po-nav-btn" id="po-prev-btn" aria-label="Previous poem">‹</button>
+        <button type="button" class="po-nav-btn" id="po-prev-btn" aria-label="Previous poem">‹</button>
         <div class="po-page-index" id="po-page-index"></div>
-        <button class="po-nav-btn" id="po-next-btn" aria-label="Next poem">›</button>
+        <button type="button" class="po-nav-btn" id="po-next-btn" aria-label="Next poem">›</button>
       </div>
     </div>
 
