@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -38,50 +38,34 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,300;1,400&family=Inter:wght@300;400&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap"
     rel="stylesheet">
 </head>
 
 <body>
   <!-- LOADER -->
   <div id="luna-loader" aria-label="Loading Luna's World" role="status" aria-live="polite">
-
-    <!-- Pure-CSS twinkling starfield (no JS, no external lib) -->
     <div class="ldr-stars" aria-hidden="true">
       <div class="ldr-star-layer ldr-star-layer--sm"></div>
       <div class="ldr-star-layer ldr-star-layer--md"></div>
       <div class="ldr-star-layer ldr-star-layer--lg"></div>
     </div>
-
-    <!-- Shooting star decorative element -->
     <div class="ldr-shooting-star" aria-hidden="true"></div>
     <div class="ldr-shooting-star ldr-shooting-star--2" aria-hidden="true"></div>
-
-    <!-- Central content -->
     <div class="ldr-content">
-
-      <!-- Moon SVG: animates through lunar phases via CSS clip-path -->
       <div class="ldr-moon-wrap" aria-hidden="true">
-        <!-- Progress arc (SVG underneath moon) -->
         <svg class="ldr-arc" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
           <circle class="ldr-arc__track" cx="60" cy="60" r="54"/>
           <circle class="ldr-arc__fill" id="ldr-arc-fill" cx="60" cy="60" r="54"/>
         </svg>
-
-        <!-- Moon body -->
         <div class="ldr-moon" id="ldr-moon">
-          <!-- Shadow overlay that slides to create phase effect -->
           <div class="ldr-moon__shadow" id="ldr-moon-shadow"></div>
-          <!-- Subtle crater marks -->
           <div class="ldr-moon__crater ldr-moon__crater--1"></div>
           <div class="ldr-moon__crater ldr-moon__crater--2"></div>
           <div class="ldr-moon__crater ldr-moon__crater--3"></div>
-          <!-- Glow ring -->
           <div class="ldr-moon__halo"></div>
         </div>
       </div>
-
-      <!-- Text stack -->
       <p class="ldr-tagline" id="ldr-tagline">A magical author universe</p>
       <h1 class="ldr-title" id="ldr-title">Luna's World</h1>
       <p class="ldr-enter" id="ldr-enter" aria-live="assertive">Entering Luna's World...</p>
@@ -90,44 +74,19 @@
   </div>
 
   <script>
-  /* ─── Luna Loader ─────────────────────────────────────────────────────────── */
   (function () {
     'use strict';
-
-    // #region agent log
-    const _dbgStart = performance.now();
-    const _dbg = (location, message, data, hypothesisId) => {
-      fetch('http://127.0.0.1:7853/ingest/074e6b6f-d7e0-4bfc-a686-7a710138c8a8',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d06613'},body:JSON.stringify({sessionId:'d06613',location,message,data,timestamp:Date.now(),hypothesisId,runId:'pre-fix'})}).catch(()=>{});
-    };
-    _dbg('index.html:loader-init','Loader script started',{readyState:document.readyState,elapsedMs:0},'B');
-    window.addEventListener('DOMContentLoaded', () => {
-      _dbg('index.html:domcontentloaded','DOMContentLoaded fired',{elapsedMs:Math.round(performance.now()-_dbgStart)},'D');
-    }, { once: true });
-    window.addEventListener('load', () => {
-      const nav = performance.getEntriesByType('navigation')[0];
-      _dbg('index.html:window-load','Window load event',{elapsedMs:Math.round(performance.now()-_dbgStart),loadEventEnd:nav?Math.round(nav.loadEventEnd):null,domContentLoaded:nav?Math.round(nav.domContentLoadedEventEnd):null},'D');
-    }, { once: true });
-    // #endregion
-
     const loader   = document.getElementById('luna-loader');
     const arcFill  = document.getElementById('ldr-arc-fill');
-    const moonEl   = document.getElementById('ldr-moon');
     const shadow   = document.getElementById('ldr-moon-shadow');
     const statusEl = document.getElementById('ldr-status');
     const enterEl  = document.getElementById('ldr-enter');
-    const titleEl  = document.getElementById('ldr-title');
-    const tagEl    = document.getElementById('ldr-tagline');
-
     const PRM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    /* ── Arc geometry (r=54, circumference ≈ 339.3) ── */
     const ARC_R = 54;
-    const ARC_C = 2 * Math.PI * ARC_R; // ≈ 339.29
+    const ARC_C = 2 * Math.PI * ARC_R;
     arcFill.style.strokeDasharray  = ARC_C;
-    arcFill.style.strokeDashoffset = ARC_C; // start at 0%
-
-    /* ── Progress tracking ── */
-    let _progress = 0; // 0–1
+    arcFill.style.strokeDashoffset = ARC_C;
+    let _progress = 0;
     let _rafPending = false;
 
     function setProgress(p) {
@@ -140,88 +99,31 @@
 
     function applyProgress() {
       _rafPending = false;
-      /* Arc fill */
       arcFill.style.strokeDashoffset = ARC_C * (1 - _progress);
-      /* Lunar phase: shadow translates from covering full disk → off screen */
       updateMoonPhase(_progress);
     }
 
-    /* ── Lunar phase via shadow overlay ──────────────────────────────────────
-       Phase cycle driven by progress:
-         0.00 → 0.12  : new moon     (shadow = full coverage, dark)
-         0.12 → 0.35  : crescent     (shadow starts sliding away)
-         0.35 → 0.60  : half moon    (shadow covers left half)
-         0.60 → 0.85  : gibbous      (small shadow sliver on left)
-         0.85 → 1.00  : full moon    (shadow fully removed)
-
-       Technique: a pseudo-ellipse shadow div starts at translateX(0%)
-       (covering the moon) and moves to translateX(120%) (fully off).
-       Additionally we vary the border-radius to mimic the curved terminator:
-         - 0%  border-radius = flat left wall  (new moon, shadow full)
-         - 50% border-radius = perfect ellipse (half-moon terminator)
-         - 90%+ border-radius = very bulged    (shadow almost gone)
-    ──────────────────────────────────────────────────────────────────────── */
     function updateMoonPhase(p) {
       if (PRM) return;
-
-      // Linear interpolation helper
       function lerp(a, b, t) { return a + (b - a) * t; }
-
-      // Normalise t within a segment [lo, hi] → 0..1, clamped
       function seg(lo, hi) { return Math.min(Math.max((p - lo) / (hi - lo), 0), 1); }
-
       let tx, br;
-
-      if (p < 0.12) {
-        // ── New moon: shadow fully covers the disk ──────────────────────────
-        // tx stays at 0%, br stays at 0% (flat left wall, no curve needed)
-        tx = 0;
-        br = 0;
-
-      } else if (p < 0.35) {
-        // ── Crescent: shadow slides right, right edge curves inward ─────────
-        // tx: 0% → 45%   br: 0% → 50%
-        const t = seg(0.12, 0.35);
-        tx = lerp(0,  45, t);
-        br = lerp(0,  50, t);
-
-      } else if (p < 0.60) {
-        // ── Half moon: shadow covers left half, terminator is nearly vertical
-        // tx: 45% → 65%   br: 50% (hold — perfect ellipse = half)
-        const t = seg(0.35, 0.60);
-        tx = lerp(45, 65, t);
-        br = 50;  // constant — keeps the terminator as a straight vertical line
-
-      } else if (p < 0.85) {
-        // ── Gibbous: small sliver of shadow remains on left ─────────────────
-        // tx: 65% → 90%   br: 50% → 90%
-        const t = seg(0.60, 0.85);
-        tx = lerp(65, 90, t);
-        br = lerp(50, 90, t);
-
-      } else {
-        // ── Full moon: shadow exits completely off the right edge ────────────
-        // tx: 90% → 120%   br: 90% → 120% (over-curved so it slides off clean)
-        const t = seg(0.85, 1.00);
-        tx = lerp(90,  120, t);
-        br = lerp(90,  120, t);
-      }
-
+      if (p < 0.12) { tx = 0; br = 0; }
+      else if (p < 0.35) { const t = seg(0.12, 0.35); tx = lerp(0, 45, t); br = lerp(0, 50, t); }
+      else if (p < 0.60) { const t = seg(0.35, 0.60); tx = lerp(45, 65, t); br = 50; }
+      else if (p < 0.85) { const t = seg(0.60, 0.85); tx = lerp(65, 90, t); br = lerp(50, 90, t); }
+      else { const t = seg(0.85, 1.00); tx = lerp(90, 120, t); br = lerp(90, 120, t); }
       shadow.style.transform    = `translateX(${tx.toFixed(2)}%)`;
       shadow.style.borderRadius = `${br.toFixed(1)}% 0 0 ${br.toFixed(1)}%`;
     }
 
-    /* ── Hook into THREE.LoadingManager if/when available ──────────────────── */
     function hookThreeLoadingManager(mgr) {
       mgr.onProgress = function (url, loaded, total) {
         if (total > 0) setProgress(loaded / total);
       };
-      mgr.onLoad = function () {
-        setProgress(1);
-      };
+      mgr.onLoad = function () { setProgress(1); };
     }
 
-    /* Poll for THREE global (loaded lazily after first interaction) */
     let threeHooked = false;
     const threePoller = setInterval(function () {
       if (threeHooked) { clearInterval(threePoller); return; }
@@ -232,22 +134,19 @@
       }
     }, 200);
 
-    /* Expose so three/main.js can hook manually: window.__lunaLoaderMgr(mgr) */
     window.__lunaLoaderMgr = function (mgr) {
       threeHooked = true;
       clearInterval(threePoller);
       hookThreeLoadingManager(mgr);
     };
 
-    /* Simulate steady progress for assets that don't fire LoadingManager events */
     (function simulateProgress() {
       if (PRM) { setProgress(1); return; }
       const start = performance.now();
-      const MIN_TIME = 4200; // ms before we allow real completion
+      const MIN_TIME = 4200;
       function tick(now) {
         const elapsed = now - start;
         const t = Math.min(elapsed / MIN_TIME, 1);
-        // Ease the simulated progress to ~85% — real events take it the rest of the way
         const simP = 0.85 * (1 - Math.pow(1 - t, 3));
         if (simP > _progress) setProgress(simP);
         if (t < 1) requestAnimationFrame(tick);
@@ -255,7 +154,6 @@
       requestAnimationFrame(tick);
     })();
 
-    /* ── Entrance animation timeline ─────────────────────────────────────── */
     if (PRM) {
       loader.classList.add('ldr--visible', 'ldr--content-in');
     } else {
@@ -263,85 +161,34 @@
       setTimeout(() => loader.classList.add('ldr--content-in'), 300);
     }
 
-    /* ── Exit sequence ──────────────────────────────────────────────────── */
     let exitCalled = false;
     function exitLoader() {
       if (exitCalled) return;
       exitCalled = true;
-
-      // #region agent log
-      _dbg('index.html:exit-loader','exitLoader called',{elapsedMs:Math.round(performance.now()-_dbgStart),progress:_progress,prm:PRM},'B');
-      // #endregion
-
-      // Ensure arc shows 100%
       setProgress(1);
-
-      if (PRM) {
-        finish();
-        return;
-      }
-
-      // 1) Fade in "Entering Luna's World..." text
+      if (PRM) { finish(); return; }
       enterEl.classList.add('ldr-enter--show');
       statusEl.style.opacity = '0';
-
-      // 2) After 800ms — start fading out entire loader
       setTimeout(() => {
         loader.classList.add('ldr--exiting');
-        // 3) After fade (~600ms) — hide and fire lunaReady
         setTimeout(finish, 650);
       }, 800);
     }
 
     function finish() {
-      // #region agent log
-      const resources = performance.getEntriesByType('resource');
-      _dbg('index.html:finish','Loader hidden, lunaReady dispatched',{
-        elapsedMs:Math.round(performance.now()-_dbgStart),
-        resourceCount:resources.length,
-        fontResources:resources.filter(r=>/font|googleapis|gstatic/.test(r.name)).length,
-        scriptResources:resources.filter(r=>/script/.test(r.name)).map(r=>({name:r.name.split('/').pop(),duration:Math.round(r.duration),transferSize:r.transferSize||0}))
-      },'B');
-      // #endregion
       loader.style.display = 'none';
       document.dispatchEvent(new CustomEvent('lunaReady'));
     }
 
-    /* ── Wait for both minimum time AND page load ─────────────────────────── */
     const MIN_TIME = PRM ? 0 : 4200;
     window.LUNA_MIN_TIME = MIN_TIME;
-
-    const minTimer  = new Promise(r => setTimeout(() => {
-      // #region agent log
-      _dbg('index.html:min-timer','MIN_TIME timer resolved',{minTimeMs:MIN_TIME,elapsedMs:Math.round(performance.now()-_dbgStart),progress:_progress},'B');
-      // #endregion
-      r();
-    }, MIN_TIME));
+    const minTimer  = new Promise(r => setTimeout(r, MIN_TIME));
     const pageReady = new Promise(r => {
-      if (document.readyState === 'complete') {
-        // #region agent log
-        _dbg('index.html:page-ready','Page already complete on init',{elapsedMs:Math.round(performance.now()-_dbgStart)},'D');
-        // #endregion
-        r();
-      } else {
-        window.addEventListener('load', () => {
-          // #region agent log
-          _dbg('index.html:page-ready','Page load promise resolved',{elapsedMs:Math.round(performance.now()-_dbgStart)},'D');
-          // #endregion
-          r();
-        }, { once: true });
-      }
+      if (document.readyState === 'complete') r();
+      else window.addEventListener('load', r, { once: true });
     });
+    Promise.all([minTimer, pageReady]).then(() => setTimeout(exitLoader, 200));
 
-    Promise.all([minTimer, pageReady]).then(() => {
-      // #region agent log
-      _dbg('index.html:ready-both','Both minTimer and pageReady resolved — scheduling exitLoader',{elapsedMs:Math.round(performance.now()-_dbgStart),progress:_progress},'B');
-      // #endregion
-      // Give real progress events a moment to settle
-      setTimeout(exitLoader, 200);
-    });
-
-    /* ── Cycling status text ─────────────────────────────────────────────── */
     if (!PRM) {
       const phrases = ['weaving moonlight…', 'gathering stardust…', 'opening the pages…', 'entering the world…'];
       let idx = 0;
@@ -355,9 +202,9 @@
         if (!exitCalled) setTimeout(cycle, 1400);
       }, 600);
     }
-
   }());
   </script>
+
   <canvas id="webgl-canvas"></canvas>
   <div class="cursor-dot" id="cursor-dot"></div>
   <div class="cursor-glow" id="cursor-glow"></div>
@@ -367,61 +214,115 @@
     <div class="star-particle star-2"></div>
     <div class="star-particle star-3"></div>
   </div>
-  <nav class="spotlight-nav" id="spotlight-nav">
-    <div class="nav-spotlight" id="nav-spotlight"></div>
-    <div class="nav-ambience" id="nav-ambience"></div>
-    <ul class="nav-links">
-      <li><a href="#home" class="nav-link active" data-target="home">Home</a></li>
-      <li><a href="#books" class="nav-link" data-target="books">Books</a></li>
-      <li><a href="#poetry" class="nav-link" data-target="poetry">Poetry</a></li>
-      <li><a href="#projects" class="nav-link" data-target="projects">Projects</a></li>
-      <li><a href="#contact" class="nav-link" data-target="contact">Contact</a></li>
-    </ul>
-  </nav>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <a href="#home" class="site-brand">
+      <span class="brand-mark" aria-hidden="true">☽</span>
+      <span class="brand-text">Luna's World</span>
+    </a>
+    <nav class="spotlight-nav" id="spotlight-nav" aria-label="Main navigation">
+      <div class="nav-spotlight" id="nav-spotlight"></div>
+      <div class="nav-ambience" id="nav-ambience"></div>
+      <ul class="nav-links">
+        <li><a href="#home" class="nav-link active" data-target="home">Home</a></li>
+        <li><a href="#books" class="nav-link" data-target="books">Books</a></li>
+        <li><a href="#poetry" class="nav-link" data-target="poetry">Poetry</a></li>
+        <li><a href="#projects" class="nav-link" data-target="projects">Projects</a></li>
+        <li><a href="#contact" class="nav-link" data-target="contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
   <main>
+    <!-- HOME -->
     <section id="home" class="hero-section spa-section spa-visible">
-      <div class="hero-content">
-        <span class="eyebrow">A magical author universe</span>
-        <h1>Welcome to Luna's World</h1>
-        <p class="subhead">Stories, poetry, dreams, and worlds beyond imagination.</p>
-        <p class="body-text">I am G Daffini Shiyalin — aka Luna — a cosmic poet and storyteller who spins thoughts into
-          twisted verse, moonlit prose, and surreal worlds that shimmer between dream and reality.</p>
-        <a href="#books" class="btn-primary">Explore My World</a>
-        <div class="hero-upcoming">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <span class="eyebrow">A magical author universe</span>
+          <h1 class="hero-title">
+            <span class="hero-title-line">Welcome to</span>
+            <span class="hero-title-accent">Luna's World</span>
+          </h1>
+          <p class="subhead">Stories, poetry, dreams, and worlds beyond imagination.</p>
+          <p class="body-text">I am G Daffini Shiyalin — aka Luna — a cosmic poet and storyteller who spins thoughts into
+            twisted verse, moonlit prose, and surreal worlds that shimmer between dream and reality.</p>
+          <div class="hero-actions">
+            <a href="#books" class="btn-primary">Explore My World</a>
+            <a href="#poetry" class="btn-ghost">Read Poetry</a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="hero-stat-num">4+</span>
+              <span class="hero-stat-label">Poetry Collections</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat-num">1</span>
+              <span class="hero-stat-label">Ongoing Novel</span>
+            </div>
+            <div class="hero-stat">
+              <span class="hero-stat-num">∞</span>
+              <span class="hero-stat-label">Dreams Written</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-orb" aria-hidden="true">
+            <div class="hero-orb-ring hero-orb-ring--1"></div>
+            <div class="hero-orb-ring hero-orb-ring--2"></div>
+            <div class="moon"></div>
+            <div class="constellation-dot dot-1"></div>
+            <div class="constellation-dot dot-2"></div>
+            <div class="constellation-dot dot-3"></div>
+            <div class="constellation-dot dot-4"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-upcoming">
+        <div class="hero-upcoming-header">
           <span class="eyebrow hero-upcoming-title">Coming Soon</span>
-          <div class="hero-upcoming-grid">
-            <div class="glass-card hero-upcoming-card">
-              <div class="card-image hero-upcoming-image">
-                <img src="assets/optimized/Eighteen.webp"
-                  srcset="assets/optimized/Eighteen.webp 280w, assets/optimized/mid/Eighteen.webp 400w, assets/optimized/2x/Eighteen.webp 560w"
-                  sizes="140px" alt="EIGHTEEN Cover" width="140" height="175" fetchpriority="high" loading="eager"
-                  decoding="async">
-              </div>
+          <span class="hero-upcoming-sub">Fresh verses &amp; stories on the horizon</span>
+        </div>
+        <div class="hero-upcoming-grid">
+          <div class="glass-card hero-upcoming-card">
+            <div class="card-image hero-upcoming-image">
+              <img src="assets/optimized/Eighteen.webp"
+                srcset="assets/optimized/Eighteen.webp 280w, assets/optimized/mid/Eighteen.webp 400w, assets/optimized/2x/Eighteen.webp 560w"
+                sizes="140px" alt="EIGHTEEN Cover" width="140" height="175" fetchpriority="high" loading="eager"
+                decoding="async">
+            </div>
+            <div class="hero-upcoming-info">
               <span class="hero-upcoming-label">Upcoming Poem</span>
               <h2 class="hero-upcoming-heading">EIGHTEEN</h2>
             </div>
-            <div class="glass-card hero-upcoming-card">
+          </div>
+          <div class="glass-card hero-upcoming-card hero-upcoming-card--placeholder">
+            <div class="placeholder-icon" aria-hidden="true">✦</div>
+            <div class="hero-upcoming-info">
               <span class="hero-upcoming-label">Upcoming Book</span>
               <h2 class="hero-upcoming-heading">In Progress...</h2>
             </div>
           </div>
         </div>
       </div>
-      <div class="hero-illustration">
-        <div class="moon"></div>
-        <div class="constellation-dot dot-1"></div>
-        <div class="constellation-dot dot-2"></div>
-        <div class="constellation-dot dot-3"></div>
+
+      <div class="scroll-hint" aria-hidden="true">
+        <span>Scroll</span>
+        <div class="scroll-hint-line"></div>
       </div>
     </section>
+
+    <!-- BOOKS -->
     <section id="books" class="content-section fade-in-up spa-section">
       <div class="section-header">
+        <span class="section-num">01</span>
         <span class="eyebrow">Books</span>
         <h2>My Books</h2>
         <p class="intro">Discover the stories that live beneath Luna's moonlit library.</p>
       </div>
-      <div class="cards-grid">
-        <div class="glass-card">
+      <div class="cards-grid cards-grid--books">
+        <article class="glass-card card-featured">
           <div class="card-image">
             <img src="assets/optimized/The_Hidden_Bloodline.webp"
               srcset="assets/optimized/The_Hidden_Bloodline.webp 280w, assets/optimized/mid/The_Hidden_Bloodline.webp 400w, assets/optimized/2x/The_Hidden_Bloodline.webp 560w"
@@ -429,118 +330,51 @@
               height="350" loading="lazy" decoding="async">
           </div>
           <div class="card-content">
+            <span class="card-tag">Fantasy · Ongoing</span>
             <h3>The Hidden Bloodline</h3>
-            <p class="meta"><strong>Genre:</strong> Fantasy | <strong>Status:</strong> Ongoing |
-              <strong>Platform:</strong> Wattpad
-            </p>
+            <p class="meta"><strong>Platform:</strong> Wattpad</p>
             <p class="description">A Wattpad fantasy adventure where hidden bloodlines and moonlit secrets collide.</p>
           </div>
           <div class="card-action">
             <a href="https://www.wattpad.com/story/411413955-the-hidden-bloodline" target="_blank"
               rel="noopener noreferrer" class="btn-secondary">Read Now</a>
           </div>
-        </div>
-        <div class="glass-card">
+        </article>
+        <article class="glass-card card-placeholder">
+          <div class="placeholder-icon" aria-hidden="true">☽</div>
           <div class="card-content">
+            <span class="card-tag">Coming Soon</span>
             <h3>Upcoming Book</h3>
-            <p class="meta"><strong>Status:</strong> Coming Soon</p>
             <p class="description">A new magical journey is currently being written.</p>
           </div>
           <div class="card-action">
             <a href="#" class="btn-secondary coming-soon-link">In Progress</a>
           </div>
-        </div>
+        </article>
       </div>
     </section>
+
+    <!-- POETRY -->
     <section id="poetry" class="content-section fade-in-up spa-section">
       <div class="section-header">
+        <span class="section-num">02</span>
         <span class="eyebrow">Poetry</span>
         <h2>Poetry Collection</h2>
         <p class="intro">Enter a constellation of verses created for dreamers and wanderers.</p>
-        <button type="button" class="btn-read-verses" onclick="window.openPoemGrid && window.openPoemGrid()" aria-label="Open the poem book reader">
-          <svg width="16" height="16" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M32 6a26 26 0 1 0 0 52 20 20 0 0 1 0-52Z" fill="currentColor"/></svg>
-          Read Verses
-        </button>
       </div>
-      <div class="cards-grid">
-        <div class="glass-card">
-          <div class="card-image">
-            <img src="assets/optimized/Whispers_of_Earth.webp"
-              srcset="assets/optimized/Whispers_of_Earth.webp 280w, assets/optimized/mid/Whispers_of_Earth.webp 400w, assets/optimized/2x/Whispers_of_Earth.webp 560w"
-              sizes="(max-width: 768px) calc(100vw - 6rem), 400px" alt="Whispers of Earth Cover" width="280"
-              height="350" fetchpriority="high" decoding="async">
-          </div>
-          <div class="card-content">
-            <h3>Whispers of Earth</h3>
-            <p class="meta"><strong>Genre:</strong> Dream Poetry</p>
-            <p class="description">A collection of nocturnal poetry bathed in moonlight.</p>
-          </div>
-          <div class="card-action">
-            <a href="https://www.bribooks.com/bookstore/whispers-of-earth-by-luna" target="_blank"
-              rel="noopener noreferrer" class="btn-secondary">Read Now</a>
-          </div>
-        </div>
-        <div class="glass-card">
-          <div class="card-image">
-            <img src="assets/optimized/She_Became_In_Silence.webp"
-              srcset="assets/optimized/She_Became_In_Silence.webp 280w, assets/optimized/mid/She_Became_In_Silence.webp 400w, assets/optimized/2x/She_Became_In_Silence.webp 560w"
-              sizes="(max-width: 768px) calc(100vw - 6rem), 400px" alt="She Became In Silence Cover" width="280"
-              height="350" loading="lazy" decoding="async">
-          </div>
-          <div class="card-content">
-            <h3>She Became In Silence</h3>
-            <p class="meta"><strong>Genre:</strong> Cosmic Poetry</p>
-            <p class="description">A journey through lettered galaxies with soft and luminous lines.</p>
-          </div>
-          <div class="card-action">
-            <a href="https://www.bribooks.com/bookstore/she-became-in-silence-by-luna" target="_blank"
-              rel="noopener noreferrer" class="btn-secondary">Read Now</a>
-          </div>
-        </div>
-        <div class="glass-card">
-          <div class="card-image">
-            <img src="assets/optimized/Warmth_That_Burned.webp"
-              srcset="assets/optimized/Warmth_That_Burned.webp 280w, assets/optimized/mid/Warmth_That_Burned.webp 400w, assets/optimized/2x/Warmth_That_Burned.webp 560w"
-              sizes="(max-width: 768px) calc(100vw - 6rem), 400px" alt="Warmth That Burned Cover" width="280"
-              height="350" loading="lazy" decoding="async">
-          </div>
-          <div class="card-content">
-            <h3>Warmth That Burned</h3>
-            <p class="meta"><strong>Genre:</strong> Emotional Poetry</p>
-            <p class="description">A tender poetry collection that explores passion, memory, and the quiet fire within.
-            </p>
-          </div>
-          <div class="card-action">
-            <a href="https://www.bribooks.com/bookstore/warmth-that-burned-by-luna/" target="_blank"
-              rel="noopener noreferrer" class="btn-secondary">Read Now</a>
-          </div>
-        </div>
-        <div class="glass-card">
-          <div class="card-image">
-            <img src="assets/optimized/Eighteen.webp"
-              srcset="assets/optimized/Eighteen.webp 280w, assets/optimized/mid/Eighteen.webp 400w, assets/optimized/2x/Eighteen.webp 560w"
-              sizes="(max-width: 768px) calc(100vw - 6rem), 400px" alt="EIGHTEEN Cover" width="280" height="350"
-              loading="lazy" decoding="async">
-          </div>
-          <div class="card-content">
-            <h3>EIGHTEEN</h3>
-            <p class="meta"><strong>Genre:</strong> Upcoming Poem</p>
-            <p class="description">A new verse waiting to be unveiled in the cosmic library.</p>
-          </div>
-          <div class="card-action">
-            <a href="#" class="btn-secondary coming-soon-link">Coming Soon</a>
-          </div>
-        </div>
-      </div>
+      <section id="poetry-bookshelf" class="poetry-bookshelf" aria-label="Poetry collection bookshelf"></section>
     </section>
+
+    <!-- PROJECTS -->
     <section id="projects" class="content-section fade-in-up spa-section">
       <div class="section-header">
+        <span class="section-num">03</span>
         <span class="eyebrow">Projects</span>
         <h2>Projects and Creations</h2>
         <p class="intro">Explore creative works, writing experiments, and magical collaborations.</p>
       </div>
-      <div class="cards-grid">
-        <div class="glass-card">
+      <div class="cards-grid cards-grid--projects">
+        <article class="glass-card">
           <div class="card-image">
             <img src="assets/optimized/Library_of_Stars.webp"
               srcset="assets/optimized/Library_of_Stars.webp 280w, assets/optimized/mid/Library_of_Stars.webp 400w, assets/optimized/2x/Library_of_Stars.webp 560w"
@@ -548,14 +382,15 @@
               loading="lazy" decoding="async">
           </div>
           <div class="card-content">
+            <span class="card-tag">Creative Gallery</span>
             <h3>Library of Stars</h3>
             <p class="description">A creative writing gallery inspired by celestial myths.</p>
           </div>
           <div class="card-action">
-            <a href="#" class="btn-secondary coming-soon-link">Visit Library</a>
+            <a href="#poetry" class="btn-secondary">View in Poetry</a>
           </div>
-        </div>
-        <div class="glass-card">
+        </article>
+        <article class="glass-card">
           <div class="card-image">
             <img src="assets/optimized/Moonlit_Journals.webp"
               srcset="assets/optimized/Moonlit_Journals.webp 280w, assets/optimized/mid/Moonlit_Journals.webp 400w, assets/optimized/2x/Moonlit_Journals.webp 560w"
@@ -563,17 +398,21 @@
               loading="lazy" decoding="async">
           </div>
           <div class="card-content">
+            <span class="card-tag">Writing Prompts</span>
             <h3>Moonlit Journals</h3>
             <p class="description">Personal writing prompts, sketches, and story seeds for creators.</p>
           </div>
           <div class="card-action">
             <a href="#" class="btn-secondary coming-soon-link">View Journals</a>
           </div>
-        </div>
+        </article>
       </div>
     </section>
+
+    <!-- CONTACT -->
     <section id="contact" class="content-section fade-in-up spa-section">
       <div class="section-header">
+        <span class="section-num">04</span>
         <span class="eyebrow">Contact</span>
         <h2>Contact Me</h2>
         <p class="intro">Reach out for collaborations, writing inquiries, or a moonlit hello.</p>
@@ -581,36 +420,32 @@
       <div class="contact-grid">
         <div class="contact-info glass-card">
           <h3>Let's Connect</h3>
-          <p><strong>Email:</strong> <a href="mailto:daffini1908@gmail.com" class="text-link">daffini1908@gmail.com</a>
-          </p>
+          <p class="contact-lead">Whether you have a story to share, a collaboration in mind, or simply want to say hello under the stars — I'd love to hear from you.</p>
+          <p><strong>Email:</strong> <a href="mailto:daffini1908@gmail.com" class="text-link">daffini1908@gmail.com</a></p>
           <div class="social-flip-container" id="social-flip-container">
             <div class="social-border-lines">
               <div class="border-top"></div>
               <div class="border-bottom"></div>
             </div>
             <a href="mailto:daffini1908@gmail.com" class="social-flip-node" style="--delay: 0s;">
-              <div class="social-tooltip">Email<div class="tooltip-arrow"></div>
-              </div>
+              <div class="social-tooltip">Email<div class="tooltip-arrow"></div></div>
               <div class="flip-inner">
                 <div class="flip-front">@</div>
                 <div class="flip-back">
                   <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                    <path
-                      d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
                   </svg>
                 </div>
               </div>
             </a>
             <a href="https://www.wattpad.com/user/author_luna1" target="_blank" rel="noopener noreferrer"
               class="social-flip-node" style="--delay: 0.08s;">
-              <div class="social-tooltip">Wattpad<div class="tooltip-arrow"></div>
-              </div>
+              <div class="social-tooltip">Wattpad<div class="tooltip-arrow"></div></div>
               <div class="flip-inner">
                 <div class="flip-front">W</div>
                 <div class="flip-back">
                   <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                    <path
-                      d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.924 16.512l-1.076-4.636h-1.636l-1.034 4.542h-.103l-1.077-4.542H10.32l-1.034 4.542h-.102L8.106 11.876H6.126l2.196 9.385h2.152l.99-4.24h.103l.99 4.24h2.15l2.217-9.385h-1.98l-1.077 4.636h-.102z" />
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.924 16.512l-1.076-4.636h-1.636l-1.034 4.542h-.103l-1.077-4.542H10.32l-1.034 4.542h-.102L8.106 11.876H6.126l2.196 9.385h2.152l.99-4.24h.103l.99 4.24h2.15l2.217-9.385h-1.98l-1.077 4.636h-.102z" />
                   </svg>
                 </div>
               </div>
@@ -618,8 +453,7 @@
           </div>
         </div>
         <form class="contact-form glass-card" id="contact-form">
-          <input type="text" name="honeypot_field" id="honeypot_field" style="display:none" tabindex="-1"
-            autocomplete="off">
+          <input type="text" name="honeypot_field" id="honeypot_field" style="display:none" tabindex="-1" autocomplete="off">
           <div class="form-group">
             <label for="email">Your Email</label>
             <input type="email" id="email" name="email" required placeholder="stargazer@universe.com">
@@ -633,12 +467,21 @@
       </div>
     </section>
   </main>
+
   <footer>
-    <p>&copy; <span id="current-year">2026</span> Luna's World. A cosmic library for writers and dreamers.</p>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="brand-mark" aria-hidden="true">☽</span>
+        <span>Luna's World</span>
+      </div>
+      <p class="footer-tagline">A cosmic library for writers and dreamers.</p>
+      <p class="footer-copy">&copy; <span id="current-year">2026</span> G Daffini Shiyalin. All rights reserved.</p>
+    </div>
   </footer>
+
+  <!-- ASTRA Chat Widget -->
   <div class="astra-widget" id="astra-widget">
-    <button type="button" class="astra-toggle" id="astra-toggle" aria-expanded="false" aria-controls="astra-panel">✨
-      Chat ASTRA</button>
+    <button type="button" class="astra-toggle" id="astra-toggle" aria-expanded="false" aria-controls="astra-panel">✨ Chat ASTRA</button>
     <div class="astra-panel glass-card" id="astra-panel" inert>
       <div class="astra-header">
         <div class="astra-titles">
@@ -649,8 +492,7 @@
       </div>
       <div class="astra-messages" id="astra-messages" aria-live="polite">
         <div class="msg astra-msg">
-          <div class="msg-bubble">Hello, I'm Astra, Luna's AI assistant. Welcome to Luna's World. How may I assist you
-            today?</div>
+          <div class="msg-bubble">Hello, I'm Astra, Luna's AI assistant. Welcome to Luna's World. How may I assist you today?</div>
         </div>
         <div class="typing-indicator-container" id="astra-typing-indicator" style="display: none;">
           <div class="typing-indicator"><span></span><span></span><span></span></div>
@@ -659,8 +501,7 @@
       <form class="astra-input" id="astra-input-form">
         <input type="text" id="astra-input" placeholder="Ask about books, poetry..." autocomplete="off">
         <button type="submit" aria-label="Send Message">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"></line>
             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
           </svg>
@@ -668,12 +509,13 @@
       </form>
     </div>
   </div>
+
+  <!-- Expandable Modal -->
   <div class="expandable-backdrop" id="expandable-backdrop"></div>
   <div class="expandable-modal glass-card" id="expandable-modal" inert>
     <button type="button" class="expandable-close" id="expandable-close" aria-label="Close Modal">&times;</button>
     <div class="expandable-image-container">
-      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Modal Cover" id="expandable-image"
-        width="280" height="350">
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Modal Cover" id="expandable-image" width="280" height="350">
     </div>
     <div class="expandable-content-wrapper">
       <div class="expandable-header">
@@ -688,311 +530,60 @@
       </div>
     </div>
   </div>
-  <script defer src="script.min.js" id="main-script"></script>
-  <script>
-  // #region agent log
-  (function(){
-    const el = document.getElementById('main-script');
-    const _log = (msg, data) => fetch('http://127.0.0.1:7853/ingest/074e6b6f-d7e0-4bfc-a686-7a710138c8a8',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'d06613'},body:JSON.stringify({sessionId:'d06613',location:'index.html:main-script',message:msg,data,timestamp:Date.now(),hypothesisId:'A',runId:'pre-fix'})}).catch(()=>{});
-    el.addEventListener('load', () => _log('script.min.js loaded OK',{src:el.src,elapsedMs:Math.round(performance.now())}));
-    el.addEventListener('error', () => _log('script.min.js FAILED to load (404?)',{src:el.src,elapsedMs:Math.round(performance.now())}));
-  })();
-  // #endregion
-  </script>
-  <!-- Three.js is loaded dynamically by script.js to eliminate unused JS penalty -->
 
-  <!-- ══════════════════════════════════════════════════════════════════════
-       POEM BOOK OVERLAY — floats above Three.js, below cursor/nav
-       Triggered by "Read Verses" button in #poetry section
-  ══════════════════════════════════════════════════════════════════════ -->
-  <div id="poem-overlay" role="dialog" aria-modal="true" aria-label="Luna's Poem Book">
-    <div class="scene">
+  <!-- Poem Read View — open book layout -->
+  <div id="po-read-view" class="po-read-view hidden" role="dialog" aria-modal="true" aria-labelledby="po-read-title">
+    <button type="button" id="btn-po-close" class="po-close-btn" aria-label="Close">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
 
-      <!-- ═══════════════════ GRID VIEW ═══════════════════ -->
-      <div id="grid-view">
-        <div class="grid-header">
-          <div class="eyebrow">Luna's World · Collected Entries</div>
-          <h1>Verses Left on the Windowsill</h1>
-          <p>Five small pages. Click one to open the book.</p>
+    <div class="po-read-stage">
+      <div class="po-read-book">
+        <!-- Left page: cover -->
+        <div class="po-read-cover-page">
+          <div class="po-read-cover-frame">
+            <img id="po-read-cover-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" width="280" height="350">
+            <div class="po-read-cover-glow" aria-hidden="true"></div>
+          </div>
+          <p id="po-read-cover-author" class="po-read-cover-author">by Luna</p>
         </div>
-        <div class="card-grid" id="card-grid"></div>
-      </div>
 
-      <!-- ═══════════════════ BOOK VIEW ═══════════════════ -->
-      <div id="book-view">
-        <button type="button" class="close-btn" id="closeBtn">✕ Close book</button>
-        <div class="book-wrap">
-          <div class="book-shell">
-            <div class="page-static left" id="leftPage"></div>
-            <div class="flip-zone">
-              <div class="flip-page" id="flipPage"></div>
-            </div>
-            <div class="spine-shadow"></div>
+        <!-- Book spine -->
+        <div class="po-read-spine" aria-hidden="true"></div>
+
+        <!-- Right page: poem -->
+        <div class="po-read-text-page">
+          <div class="po-read-page-header">
+            <span id="po-read-entry" class="po-read-entry-tag">Entry 01</span>
+            <span id="po-read-genre" class="po-read-genre-tag">Genre</span>
+          </div>
+          <h2 id="po-read-title" class="po-read-title">Title</h2>
+          <div class="po-read-scroll">
+            <div id="po-read-body" class="po-read-body"></div>
           </div>
         </div>
-        <div class="book-controls">
-          <button type="button" class="nav-btn" id="prevBtn" aria-label="Previous poem">‹</button>
-          <div class="page-index" id="pageIndex"></div>
-          <button type="button" class="nav-btn" id="nextBtn" aria-label="Next poem">›</button>
-        </div>
       </div>
-
     </div>
-  </div><!-- /#poem-overlay -->
 
-  <script>
-  /* ════════════════════════════════════════════════════════════════════════
-     Luna's World — Poem Book (embedded overlay)
-     Floats above Three.js background (z-index 200).
-     Uses transitionend for page-turns. prefers-reduced-motion: crossfade.
-  ════════════════════════════════════════════════════════════════════════ */
-  (function () {
-    const poems = [
-      {
-        title: "Warmth That Burned",
-        glyph: "crescent",
-        body: `The light had finally found its way to that soul.
-She lived within a cage, unaware of the sword she was destined to wield. Her eyes still gleamed with innocence when the clock struck twelve.
-And then, the rain clouds parted.
-A silver light revealed itself to the moon. It was beautiful, yet cold. The cold settled along her spine like winter's fingers.
-Just as the tides answered the moon's call, she answered the call of a place she hoped would finally grant her solace.
-But she was cursed.
-Her blood belonged to the stars, and her soul was made of glass and dust.
-Her comfort had vanished. So had her smile.
-Far in the distance, a small light flickered. A firefly, she thought.
-And for the first time in a long while, she allowed herself to believe in goodness.
-Guided by moonlight, she followed it into the woods.
-The deeper she wandered, the thicker the forest became.
-Then she saw it. Not a firefly. A wildfire.
-The closer she stepped, the heavier the smoke became. It filled her lungs and stole her breath. Her face turned pale, her eyes burned with tears.
-Yet hidden beside the raging flames stood a small bonfire.
-Its warmth was gentle. Enough to comfort her. Not enough to consume her.
-Above, the moon shone brighter than ever, though smoke and clouds veiled its light, much like grief veils the heart.
-She stood between two fires. One that could warm her. One that could destroy her.
-She did not know which she truly needed. Something to quench her thirst. Or something that would leave her completely dry.
-Lost between her thoughts, she slowly lost herself. That hollow feeling returned. It weakened her heart until it became quiet.
-One choice would decide her sky.
-Time moved too quickly as she wavered between paths. That terrible feeling, when the heart wants one thing, yet the soul knows it cannot survive it.
-Her heart was adorned with needles now. Wrapped in thorns. The air became harder to breathe. And there was no turning back.
-The path behind her had closed. The sky had darkened. The fire only burned brighter, believing she would choose it.
-Little did it know, it had hurt her every single time.
-She fell to her knees and prayed for rain. The girl who once longed for warmth now begged for coldness. For emptiness. For relief.
-She stared at her burned hands. At her scarred skin. And whispered;
-Perhaps I should never have come here. Perhaps I was never meant to feel warmth. Perhaps I do not deserve it. Perhaps this is simply too much.
-The bonfire dimmed as it witnessed her tears. The wildfire did not.
-"Why aren't you choosing me?" it asked.
-"You are too much for me," she replied. And turned away.
-Only then did the wildfire truly see her scars. See what its flames had done. See how much she had suffered.
-"Sorry—"
-But before the apology could reach her, she collapsed.
-The fire lost control. It rushed toward her from every direction, surrounding her completely. And it burned her alive.
-Thus ended a noble soul. A soul who only wished to become someone worth looking up to. A soul who searched endlessly for the warmth she had always lacked.
-Perhaps, in another life, the fire would not consume her. Perhaps it would heal her frostbitten hands. Guide her through her darkest nights. And teach her that warmth was never meant to hurt.
-Leaving the final page blank, just in case…`
-      },
-      {
-        title: "Whispers of the Earth",
-        glyph: "gibbous",
-        body: `The first time the wind whispered my name, I thought it was lying.
-No one speaks to girls like me. Not anymore. Not in a world where rivers are bought and bottled, and the sky is just a faded ceiling no one looks at.
-But the truth is: I was born remembering.
-The trees still whispered to me. And they had not forgotten what the world chose to erase.
-But that morning on the fourth day of Ember Season I felt it. The earth shivered under my bare feet. And I heard it again.
-Lyra.
-The voice came from the roots.
-I live in a place they call the Hollow. It's the last patch of land they haven't burned or built over.
-They left it alone because it scared them. Because here, the air still remembers.
-They say the world died years ago. That climate change swallowed the oceans, cracked the soil, and ruined every chance we had.
-But that's not true. The world didn't die. It simply stopped talking to us. Until now.
-I don't know why the Hollow chose me. Maybe because I listen. Maybe because when I close my eyes, I can feel the ghosts of extinct birds nesting in my ribcage.
-My grandmother once told me, "When the trees remember your name, child, it means you're part of their last story."
-So I waited. And the Hollow showed me what they buried.
-Beneath the moss, under the cracked bark of an ancient oak, I found it: a library made of soil. Each leaf held a memory. Each root, a name.
-The oceans, once blue, cried through the stones.
-There were no heroes here. No shining machines. Just a girl with scars on her palms and questions on her tongue.
-I asked the wind why the world turned away from us. And it said:
-Because you traded your skies for smoke. Your rivers for noise. Your truth for progress.
-And then it asked me something I didn't expect. It asked me to give up my voice. To offer the one thing I still had — belief. Belief that this Earth still wants us. Still aches for us. Still waits.
-I knelt down. I pressed my hand to the roots. And I whispered:
-I remember you.
-The trees wept. The sky cracked open. And for the first time in centuries, the soil sighed in relief.
-I didn't save the world. I simply reminded it of who we used to be.`
-      },
-      {
-        title: "Mellow Glow From Within",
-        glyph: "full",
-        body: `The stars did not guide her. They simply watched as she learned to glow on her own.
-The stars within her guided her. They did not speak, nor did they interfere. They simply watched quietly as she learned to glow on her own.
-Most stars do not carry their own light. They reflect what is given to them, borrowing brilliance from something greater.
-But when everything around her turned dark, she chose differently.
-She did not search for light to reflect. She did not wait for the sun. Instead, she created her own.
-A glow that did not depend on anything — a light that did not fade with the absence of others.
-It was softer at first, almost fragile, but it grew, day by day, stronger than anything she had ever known.
-Even the stars seemed to pause, watching her in quiet awe, wondering how she continued to shine without borrowing anyone's fire.
-She became her own sun. Her own galaxy.
-And with that quiet, unwavering glow, she walked forward toward her destiny.`
-      },
-      {
-        title: "Scars That Shine",
-        glyph: "crescent-r",
-        body: `The moon hung low with quiet secrets that only she could hear.
-There is an ease in the sky — a scarred star that still shines.
-The sun burns bright, but the moon hums with secrets, soft and unspoken, meant only for those who truly observe.
-It is not loud. It does not call for attention. Only she could hear it — not with her ears, but with something deeper.
-The moon appears when the world slows down, becoming a quiet companion to those who seek silence rather than sound.
-It shines with the stars, reminding us that even something distant, something scarred, can still glow with grace.
-She saw herself in the moon. Sometimes clearly, sometimes not at all. But she always found comfort in its scars.
-The moon never spoke aloud, yet she heard it with her heart.`
-      },
-      {
-        title: "A Love That Was Never Heard",
-        glyph: "new",
-        body: `She kept looking at the silent space, hoping it would speak her name.
-She laughed with the world, but when he appeared, her voice faded into quiet. As if her existence softened in his presence.
-She heard his heart belonged elsewhere. And something within her dimmed, like a star losing its light.
-He never knew there was a girl who quietly shaped herself around his existence, willing to change even the smallest parts of her world just to feel closer to him.
-She built galaxies in her mind, filled with moments that only existed in her imagination.
-Somewhere, the one he loved would live those moments, without ever knowing they once belonged to her dreams.
-Even the things she feared, even the things that unsettled her, she would have faced them, if it meant standing beside him.
-Somewhere along the way, her feelings had started to depend on him for meaning.
-And so, she remained a distant star — unseen, unspoken — loving him from a universe he would never look back at.`
-      }
-    ];
+    <div class="po-read-footer">
+      <button type="button" id="btn-po-prev" class="po-nav-btn" aria-label="Previous poem">← Prev</button>
+      <button type="button" id="btn-po-tts" class="po-tts-btn" aria-label="Read Aloud" title="Listen to poem">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+        <span id="btn-po-tts-label">Listen</span>
+      </button>
+      <button type="button" id="btn-po-close2" class="po-read-close-btn">← Back to Shelf</button>
+      <button type="button" id="btn-po-next" class="po-nav-btn" aria-label="Next poem">Next →</button>
+    </div>
+  </div>
 
-    function moonSVG(kind, fgColor, bgColor) {
-      const fg = fgColor || '#845EC2';
-      const bg = bgColor || '#D5CABD';
-      const paths = {
-        'new':        `<circle cx="32" cy="32" r="26" fill="none" stroke="${fg}" stroke-width="1.6"/>`,
-        'crescent':   `<path d="M32 6a26 26 0 1 0 0 52 20 20 0 0 1 0-52Z" fill="${fg}"/>`,
-        'crescent-r': `<path d="M32 6a26 26 0 1 1 0 52 20 20 0 0 0 0-52Z" fill="${fg}"/>`,
-        'gibbous':    `<circle cx="32" cy="32" r="26" fill="${fg}"/><circle cx="20" cy="32" r="22" fill="${bg}"/>`,
-        'full':       `<circle cx="32" cy="32" r="26" fill="${fg}"/>`
-      };
-      return `<svg class="moon-glyph" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${paths[kind] || paths.full}</svg>`;
-    }
-
-    function cardGlyphSVG(kind) {
-      const fg = '#845EC2';
-      const bg = '#2e2836';
-      const paths = {
-        'new':        `<circle cx="10" cy="10" r="8" fill="none" stroke="${fg}" stroke-width="1.4"/>`,
-        'crescent':   `<path d="M10 2a8 8 0 1 0 0 16 6 6 0 0 1 0-16Z" fill="${fg}"/>`,
-        'crescent-r': `<path d="M10 2a8 8 0 1 1 0 16 6 6 0 0 0 0-16Z" fill="${fg}"/>`,
-        'gibbous':    `<circle cx="10" cy="10" r="8" fill="${fg}"/><circle cx="6" cy="10" r="7" fill="${bg}"/>`,
-        'full':       `<circle cx="10" cy="10" r="8" fill="${fg}"/>`
-      };
-      return `<svg class="glyph" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${paths[kind] || paths.full}</svg>`;
-    }
-
-    const grid = document.getElementById('card-grid');
-    poems.forEach((p, i) => {
-      const firstLine = p.body.trim().split('\n')[0];
-      const card = document.createElement('div');
-      card.className = 'poem-card';
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-label', `Open poem: ${p.title}`);
-      card.innerHTML = `
-        <div class="glyph">${cardGlyphSVG(p.glyph)}</div>
-        <div class="num">Entry ${String(i + 1).padStart(2, '0')}</div>
-        <h3>${p.title}</h3>
-        <div class="teaser">${firstLine}</div>
-      `;
-      card.addEventListener('click', () => openBook(i));
-      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openBook(i); });
-      grid.appendChild(card);
-    });
-
-    const PRM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let current = 0, animating = false;
-
-    const overlay  = document.getElementById('poem-overlay');
-    const gridView = document.getElementById('grid-view');
-    const bookView = document.getElementById('book-view');
-    const leftPage = document.getElementById('leftPage');
-    const flipPage = document.getElementById('flipPage');
-    const pageIndex = document.getElementById('pageIndex');
-    const prevBtn  = document.getElementById('prevBtn');
-    const nextBtn  = document.getElementById('nextBtn');
-    const closeBtn = document.getElementById('closeBtn');
-
-    function renderSpread(i) {
-      const p = poems[i];
-      leftPage.innerHTML = `
-        <div class="num">Entry ${String(i + 1).padStart(2, '0')} of ${poems.length}</div>
-        ${moonSVG(p.glyph, '#845EC2', '#D5CABD')}
-        <h2>${p.title}</h2>
-        <div class="flourish"></div>
-      `;
-      const firstChar = p.body.trim()[0];
-      const rest      = p.body.trim().slice(1);
-      flipPage.innerHTML = `<div class="poem-body"><p><span class="dropcap">${firstChar}</span>${rest}</p></div>`;
-      flipPage.scrollTop = 0;
-      pageIndex.textContent = `Page ${i + 1} / ${poems.length}`;
-      prevBtn.disabled = i === 0;
-      nextBtn.disabled = i === poems.length - 1;
-    }
-
-    function openPoemGrid() {
-      overlay.classList.add('is-open');
-      gridView.style.display = 'block';
-      bookView.style.display = 'none';
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closePoemOverlay() {
-      overlay.classList.remove('is-open');
-      document.body.style.overflow = '';
-    }
-
-    function openBook(i) {
-      current = i;
-      renderSpread(current);
-      gridView.style.display = 'none';
-      bookView.style.display = 'flex';
-      closeBtn.focus();
-    }
-
-    function closeBook() {
-      bookView.style.display = 'none';
-      gridView.style.display = 'block';
-    }
-
-    function turn(dir) {
-      if (animating) return;
-      const next = current + dir;
-      if (next < 0 || next >= poems.length) return;
-      animating = true;
-      flipPage.classList.add('turning');
-      flipPage.addEventListener('transitionend', function onTurnEnd() {
-        flipPage.removeEventListener('transitionend', onTurnEnd);
-        current = next;
-        renderSpread(current);
-        flipPage.classList.remove('turning');
-        void flipPage.offsetWidth;
-        animating = false;
-      }, { once: true });
-    }
-
-    closeBtn.addEventListener('click', closeBook);
-    prevBtn.addEventListener('click', () => turn(-1));
-    nextBtn.addEventListener('click', () => turn(1));
-
-    document.addEventListener('keydown', e => {
-      if (!overlay.classList.contains('is-open')) return;
-      if (bookView.style.display === 'flex') {
-        if (e.key === 'ArrowRight') turn(1);
-        if (e.key === 'ArrowLeft')  turn(-1);
-        if (e.key === 'Escape')     closeBook();
-      } else {
-        if (e.key === 'Escape') closePoemOverlay();
-      }
-    });
-
-    window.openPoemGrid = openPoemGrid;
-  }());
-  </script>
+  <script defer src="script.js" id="main-script"></script>
 </body>
 
 </html>

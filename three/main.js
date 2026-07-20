@@ -301,9 +301,9 @@ class Nebula {
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        color1: { value: new THREE.Color("#22143B") },
-        color2: { value: new THREE.Color("#6C4CA1") },
-        color3: { value: new THREE.Color("#B8AD9F") },
+        color1: { value: new THREE.Color("#1a1025") },
+        color2: { value: new THREE.Color("#845EC2") },
+        color3: { value: new THREE.Color("#D5CABD") },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -670,7 +670,7 @@ class ClickStars {
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
-        color: { value: new THREE.Color("#FFD37E") }, // Gold color for click star
+        color: { value: new THREE.Color("#D5CABD") },
       },
       vertexShader: `
         attribute float birthTime;
@@ -930,7 +930,16 @@ class CosmicApp {
       "[CosmicApp] All modules initialized, starting animation loop.",
     );
     this.clock = new THREE.Clock();
-    this.animate();
+    // If the user already interacted before modules finished loading,
+    // mark it so the sleep failsafe never fires on auto-start.
+    if (this.userInteracted) {
+      this.animate();
+    } else {
+      // Start the animation but also mark userInteracted true so the
+      // 2.5-second failsafe doesn't kill the render loop on auto-load.
+      this.userInteracted = true;
+      this.animate();
+    }
   }
 
   onWindowResize() {
@@ -976,12 +985,18 @@ class CosmicApp {
 }
 
 let appStarted = false;
+let _userInteractedBeforeApp = false;
+const _markInteraction = () => { _userInteractedBeforeApp = true; };
+["mousemove", "scroll", "touchstart", "keydown", "click"].forEach((e) => {
+  window.addEventListener(e, _markInteraction, { passive: true });
+});
 
 const startApp = () => {
   if (appStarted) return;
   appStarted = true;
 
-  new CosmicApp();
+  const app = new CosmicApp();
+  if (app && _userInteractedBeforeApp) app.userInteracted = true;
 
   const canvas = document.getElementById("webgl-canvas");
   if (canvas) {
